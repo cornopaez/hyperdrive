@@ -1,0 +1,20 @@
+{
+  "name": "hyperdrive",
+  "version": "0.0.1",
+  "description": "The backend for an application for APIFest",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cornopaez/hyperlink.git"
+  },
+  "author": "cornopaez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cornopaez/hyperlink/issues"
+  },
+  "homepage": "https://github.com/cornopaez/hyperlink#readme"
+}
