@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const dotenv = require('dotenv').config();
+const queryDb = require('../middlewares/mongo-queries.js')
+const connection = require('../middlewares/mongo-connection.js')
 const DIST_FOLDER = process.cwd() + '/dist';
 
 module.exports = router;
@@ -21,6 +23,17 @@ router.use('*', (req, res, next) => {
 		return next();
 	}
 });
+
+router.post('/webhook', (req, res) => {
+	// console.log(req.body)
+	queryDb.postRequest(req.body.result)
+	.then(success => {
+		res.json(success)
+	})
+	.catch(error => {
+		res.json(error)
+	})
+})
 
 router.get('/', (req, res) => res.send('I\'m up and running!'))
 
