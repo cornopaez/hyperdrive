@@ -26,7 +26,7 @@ router.use('*', (req, res, next) => {
 
 router.post('/webhook', (req, res) => {
 	// console.log(req.body)
-	queryDb.postRequest(req.body.result)
+	queryDb.postRequest(req.body)
 	.then(success => {
 		res.json(success)
 	})
