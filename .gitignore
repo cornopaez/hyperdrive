@@ -62,3 +62,6 @@ typings/
 
 #ngrok
 ngrok
+
+#Filesystem
+.DS_Store
