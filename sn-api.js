@@ -7,7 +7,7 @@ const baseurl = "https://gpietro3demo.service-now.com"
 const dotenv = require('dotenv').config()
 var auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
 
-console.log(`${process.env.username} ${process.env.password}`)
+// console.log(`${process.env.username} ${process.env.password}`)
 
 var search_string = '123TEXTQUERY321%3D' + urlencode(argv.search_string) // Beginning of string necessary for query to work
 
