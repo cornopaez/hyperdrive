@@ -4,16 +4,26 @@ const btoa = require('btoa')
 const argv = require('yargs').argv
 const urlencode = require('urlencode')
 const baseurl = "https://gpietro3demo.service-now.com"
-auth = 'Basic '+btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
+const dotenv = require('dotenv').config()
+var auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
 
-var search_string = urlencode(argv.search_string)
-var options = {
-  uri: baseurl + `/api/now/table/kb_knowledge?sysparm_query=123TEXTQUERY321%3D${search_string}&sysparm_limit=3&workflow_state=published`,
+console.log(`${process.env.username} ${process.env.password}`)
+
+var search_string = '123TEXTQUERY321%3D' + urlencode(argv.search_string) // Beginning of string necessary for query to work
+
+var options = { 
   method: 'GET',
+  url: 'https://gpietro3demo.service-now.com/api/now/table/kb_knowledge',
+  qs: { 
+    sysparm_query: search_string,
+    sysparm_limit: '3',
+    workflow_state: 'published' 
+  },
   json: true,
   headers: {
-    Authorization: auth
-  }
+    'Cache-Control': 'no-cache',
+    Authorization: auth 
+  } 
 }
 
 function callback(error, response, body) {
