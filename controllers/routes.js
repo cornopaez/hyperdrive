@@ -25,6 +25,15 @@ router.post('/webhook', (req, res) => {
 router.get('/', (req, res) => res.send('I\'m up and running!'))
 
 router.post('/search', (req, res) => {
-	console.log("search requested")
-	console.log(search(req.body))
+	console.log("search requested for " + JSON.stringify(req.body))
+	search(req.body.resolvedQuery)
+	.then(success => {
+		// console.log(success)
+		res.send(success)
+	})
+	.catch(data => {
+		// console.log(error)
+		res.send(error)
+	})
+	// console.log(search(req.body))
 })

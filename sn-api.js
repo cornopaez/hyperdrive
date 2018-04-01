@@ -21,26 +21,44 @@ function callback(error, response, body) {
 }
 
 function search(search_string) {
-  var auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
 
-  var search_query = '123TEXTQUERY321%3D' + urlencode(argv.search_string) // Beginning of string necessary for query to work
+  return new Promise((resolve, reject) =>{
+    var auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
 
-  var options = { 
-    method: 'GET',
-    url: baseurl + searchuri,
-    qs: { 
-      sysparm_query: search_string,
-      sysparm_limit: '3',
-      workflow_state: 'published' 
-    },
-    json: true,
-    headers: {
-      'Cache-Control': 'no-cache',
-      Authorization: auth 
-    } 
-  }
-  var res = request(options, callback)
-  console.log(res)
+    var search_query = '123TEXTQUERY321=' + urlencode(search_string) // Beginning of string necessary for query to work
+
+    var options = { 
+      method: 'GET',
+      uri: baseurl + searchuri,
+      qs: { 
+        sysparm_query: search_query,
+        sysparm_limit: '3',
+        workflow_state: 'published' 
+      },
+      json: true,
+      headers: {
+        'Cache-Control': 'no-cache',
+        Authorization: auth 
+      } 
+    }
+
+    // var res = request(options, callback)
+    request(options, (error, response, body) => {
+      // console.log(body)
+      var search_results = ""
+      if (!error && response.statusCode == 200) {
+        for (let result of body.result) {
+          var short_description = JSON.stringify(result.short_description)
+          search_results = search_results + ` ${short_description} \n `+ baseurl + kburi + result.sys_id + "\n"
+        }
+      } else {
+        reject(error)
+      }
+      // console.log(search_results)
+      resolve(search_results)
+    })
+    // console.log(res)
+  })
 }
 
 module.exports.search = search
