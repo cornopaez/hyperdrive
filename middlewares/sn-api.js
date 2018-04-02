@@ -7,19 +7,15 @@ const dotenv = require('dotenv').config()
 const searchuri = '/api/now/table/kb_knowledge'
 const kburi = `/nav_to.do?uri=%2Fkb_view.do%3Fsys_kb_id%3D`
 
-function callback(error, response, body) {
-  var search_results = ""
-  if (!error && response.statusCode == 200) {
-    for (let result of body.result) {
-      var short_description = JSON.stringify(result.short_description)
-      search_results = search_results + ` ${short_description} \n `+ baseurl + kburi + result.sys_id + "\n"
-    }
-  } else {
-    console.log(`Error: ${error}`)
-  }
-  return search_results
-}
+module.exports.search = search
 
+/**
+  This function searches the configured ServiceNow endpoint. It returns a Promise that resolves the data as plain text or provides
+  the error occured.
+
+  @param search_string - A single string of text to be searched for
+  @return - Promise. Resolves to plain text from relevant articles returned.
+*/
 function search(search_string) {
 
   return new Promise((resolve, reject) =>{
@@ -42,9 +38,7 @@ function search(search_string) {
       } 
     }
 
-    // var res = request(options, callback)
     request(options, (error, response, body) => {
-      // console.log(body)
       var search_results = ""
       if (!error && response.statusCode == 200) {
         for (let result of body.result) {
@@ -54,11 +48,7 @@ function search(search_string) {
       } else {
         reject(error)
       }
-      // console.log(search_results)
       resolve(search_results)
     })
-    // console.log(res)
   })
 }
-
-module.exports.search = search

@@ -2,14 +2,9 @@ const express = require("express")
 const router = express.Router()
 const dotenv = require('dotenv').config()
 const DIST_FOLDER = process.cwd() + '/dist'
-const search = require('../sn-api.js').search
+const search = require('../middlewares/sn-api.js').search
 
 module.exports = router
-
-router.use('*', (req, res, next) => {
-	//no need for https in an MVP right?
-	return next()
-})
 
 router.post('/webhook', (req, res) => {
 	// console.log(req.body)
@@ -22,10 +17,14 @@ router.post('/webhook', (req, res) => {
 	})
 })
 
-router.get('/', (req, res) => res.send('I\'m up and running!'))
-
 router.post('/search', (req, res) => {
 	console.log("search requested for " + JSON.stringify(req.body))
+
+	/**
+		The search function is looking for a specific parameter in the data being passed,
+		based on the data passed from API.AI (Webdialog)
+		Adjust accordingly if necessary.
+	*/
 	search(req.body.resolvedQuery)
 	.then(success => {
 		// console.log(success)
@@ -35,5 +34,6 @@ router.post('/search', (req, res) => {
 		// console.log(error)
 		res.send(error)
 	})
-	// console.log(search(req.body))
 })
+
+router.get('/', (req, res) => res.send('I\'m up and running!'))
