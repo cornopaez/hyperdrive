@@ -1,28 +1,10 @@
-const express = require("express");
-const router = express.Router();
-const dotenv = require('dotenv').config();
-const queryDb = require('../middlewares/mongo-queries.js')
-const connection = require('../middlewares/mongo-connection.js')
-const DIST_FOLDER = process.cwd() + '/dist';
+const express = require("express")
+const router = express.Router()
+const dotenv = require('dotenv').config()
+const DIST_FOLDER = process.cwd() + '/dist'
+const search = require('../middlewares/sn-api.js').search
 
-module.exports = router;
-
-router.use('*', (req, res, next) => {
-	// Check for secure connection
-	if (req.headers["x-forwarded-proto"] !== "https"){
-		if (process.env.NODE_ENV) {
-			// If in Prod, redirect
-			console.log("Forcing HTTPS...")
-			res.redirect('https://'+req.hostname+req.url);
-		} else {
-			// If not in production, move on
-			return next();
-		}
-	} else {
-		// If already secure, move on
-		return next();
-	}
-});
+module.exports = router
 
 router.post('/webhook', (req, res) => {
 	// console.log(req.body)
@@ -35,5 +17,23 @@ router.post('/webhook', (req, res) => {
 	})
 })
 
-router.get('/', (req, res) => res.send('I\'m up and running!'))
+router.post('/search', (req, res) => {
+	console.log("search requested for " + JSON.stringify(req.body))
 
+	/**
+		The search function is looking for a specific parameter in the data being passed,
+		based on the data passed from API.AI (Webdialog)
+		Adjust accordingly if necessary.
+	*/
+	search(req.body.resolvedQuery)
+	.then(success => {
+		// console.log(success)
+		res.send(success)
+	})
+	.catch(data => {
+		// console.log(error)
+		res.send(error)
+	})
+})
+
+router.get('/', (req, res) => res.send('I\'m up and running!'))
