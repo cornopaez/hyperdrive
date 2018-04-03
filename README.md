@@ -37,3 +37,10 @@
 ```
 
 A sample call from api.ai
+
+```bash
+curl -X POST http://localhost:3000/search -H 'Cache-Control: no-cache' -H 'Content-Type: application/json' -H 'Postman-Token: ca9aed8e-0366-4742-a33e-bf7137f305f4' -d '{"resolvedQuery" : "password"}'
+```
+
+a test call to the api
+
