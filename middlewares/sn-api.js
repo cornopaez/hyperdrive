@@ -47,7 +47,7 @@ function search(search_string) {
           search_results = search_results + ` ${short_description} \n `+ baseurl + kburi + result.sys_id + "\n"
         }
       } else {
-        reject(error)
+        reject(response)
       }
       resolve(search_results)
     })

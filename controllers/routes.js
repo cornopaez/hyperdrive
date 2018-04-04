@@ -14,7 +14,7 @@ router.post('/webhook', (req, res) => {
 		res.json(success)
 	})
 	.catch(error => {
-		res.json(error)
+		res.status(error.statusCode).send(error.body)
 	})
 })
 
