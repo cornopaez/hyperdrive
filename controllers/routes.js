@@ -7,7 +7,7 @@ const search = require('../middlewares/sn-api.js').search
 module.exports = router
 
 router.post('/webhook', (req, res) => {
-	// console.log(req.body)
+	console.log(req.body)
 	queryDb.postRequest(req.body)
 	.then(success => {
 		res.json(success)
