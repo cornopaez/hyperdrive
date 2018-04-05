@@ -5,7 +5,7 @@ const urlencode = require('urlencode')
 const baseurl = "https://gpietro3demo.service-now.com"
 const dotenv = require('dotenv').config()
 const searchuri = '/api/now/table/kb_knowledge'
-const userUri = 'api/now/table/sys_user'
+const userUri = '/api/now/table/sys_user'
 const kburi = `/nav_to.do?uri=%2Fkb_view.do%3Fsys_kb_id%3D`
 const auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
 
