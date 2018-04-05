@@ -5,6 +5,7 @@ const urlencode = require('urlencode')
 const baseurl = "https://gpietro3demo.service-now.com"
 const dotenv = require('dotenv').config()
 const searchuri = '/api/now/table/kb_knowledge'
+const userUri = 'api/now/table/sys_user'
 const kburi = `/nav_to.do?uri=%2Fkb_view.do%3Fsys_kb_id%3D`
 const auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
 
@@ -60,7 +61,7 @@ function getUserDetails(email_address) {
   return new Promise((resolve, reject) => {
     var options = { 
       method: 'GET',
-      uri: 'https://gpietro3demo.service-now.com/api/now/table/sys_user',
+      uri: baseurl + userUri,
       qs: { 
         sysparm_query: 'email=' + email_address,
         sysparm_limit: '1' //This can be changed to suit our needs 
