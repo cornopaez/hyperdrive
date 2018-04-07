@@ -3,6 +3,7 @@ const router = express.Router()
 const dotenv = require('dotenv').config()
 const DIST_FOLDER = process.cwd() + '/dist'
 const search = require('../middlewares/sn-api.js').search
+const processIntent = require('../middlewares/intent-processing.js').processIntent
 
 module.exports = router
 
@@ -13,7 +14,7 @@ router.post('/webhook', (req, res) => {
 		res.json(success)
 	})
 	.catch(error => {
-		res.json(error)
+		res.status(error.statusCode).send(error.body)
 	})
 })
 
@@ -25,14 +26,14 @@ router.post('/search', (req, res) => {
 		based on the data passed from API.AI (Webdialog)
 		Adjust accordingly if necessary.
 	*/
-	search(req.body.resolvedQuery)
+	processIntent(req.body)
 	.then(success => {
 		// console.log(success)
 		res.send(success)
 	})
 	.catch(data => {
-		// console.log(error)
-		res.send(error)
+		console.log('processIntent error!')
+		res.status(data.statusCode).send(data.body)
 	})
 })
 
