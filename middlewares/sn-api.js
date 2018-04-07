@@ -55,6 +55,13 @@ function search(search_string) {
   })
 }
 
+/**
+  This function searches the configured ServiceNow endpoint. It returns a Promise that resolves the data as plain text or provides
+  the error occured.
+
+  @param email_address - The email address of the person being looked for
+  @return - Promise. Resolves to JSON object containing the user's information
+*/
 function getUserDetails(email_address) {
 
 
@@ -74,7 +81,7 @@ function getUserDetails(email_address) {
 
     request(options, (error, response, body) => {
       if (!error && response.statusCode == 200) {
-        resolve(body)
+        resolve(JSON.parse(body))
       } else {
         console.log('request error!')
         // console.log(response)

@@ -26,7 +26,7 @@ function processIntent(request_body) {
 				getUserDetails('mark.ludwig@pnc.com') //Needs to change when we know where the information is coming from
 				.then(success => {
 					console.log('search_user success!')
-					resolve(JSON.parse(success))
+					resolve(success)
 				})
 				.catch(error => {
 					console.log('search_user error!')
