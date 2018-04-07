@@ -54,7 +54,7 @@ function processIntent(request_body) {
 			default:
 				var response = {
 					statusCode: 500,
-					body = {
+					body: {
 						message: 'Error: Unknown Intent Action'
 					}
 				}
