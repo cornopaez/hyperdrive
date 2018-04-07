@@ -92,8 +92,8 @@ function getUserDetails(email_address) {
 }
 
 /**
-  This function searches the configured ServiceNow endpoint. It returns a Promise that resolves the data as plain text or provides
-  the error occured.
+  This function creates an incident in the ServiceNow endpoint. It returns a Promise that resolves the response as plain text 
+  or provides the error occured.
 
   @param status - Optional. By default, the incident will be created with an Open status.
   @return - Promise. Resolves to JSON object containing the user's information

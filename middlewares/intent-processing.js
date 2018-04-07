@@ -22,6 +22,7 @@ function processIntent(request_body) {
 					reject(error)
 				})
 				break
+
 			case 'search_user':
 				getUserDetails('mark.ludwig@pnc.com') //Needs to change when we know where the information is coming from
 				.then(success => {
@@ -33,8 +34,10 @@ function processIntent(request_body) {
 					reject(error)
 				})
 				break
+
 			case 'create_incident':
 				break
+				
 			default:
 				var response = {
 					statusCode: 500,
