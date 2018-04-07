@@ -35,6 +35,15 @@ function processIntent(request_body) {
 				break
 			case 'create_incident':
 				break
+			default:
+				var response = {
+					statusCode: 500,
+					body: {
+						message: 'Error: Unknown Intent Action.'
+					}
+				}
+				reject(response)
+				break
 		}
 	})
 }
