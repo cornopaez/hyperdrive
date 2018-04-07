@@ -6,11 +6,17 @@ const baseurl = "https://gpietro3demo.service-now.com"
 const dotenv = require('dotenv').config()
 const searchuri = '/api/now/table/kb_knowledge'
 const userUri = '/api/now/table/sys_user'
+const incidentUri = '/api/now/table/incident'
 const kburi = `/nav_to.do?uri=%2Fkb_view.do%3Fsys_kb_id%3D`
 const auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
 
-module.exports.search = search
-module.exports.getUserDetails = getUserDetails
+// module.exports.search = search
+// module.exports.getUserDetails = getUserDetails
+module.exports = {
+  search: search,
+  getUserDetails: getUserDetails,
+  getIncidentDetails: getIncidentDetails
+}
 
 /**
   This function searches the configured ServiceNow endpoint. It returns a Promise that resolves the data as plain text or provides
@@ -74,7 +80,88 @@ function getUserDetails(email_address) {
 
     request(options, (error, response, body) => {
       if (!error && response.statusCode == 200) {
-        resolve(body)
+        resolve(JSON.parse(body))
+      } else {
+        console.log('request error!')
+        // console.log(response)
+        reject(response)
+      }
+    })
+  })
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+  This function searches the configured ServiceNow endpoint for a specific incident. It returns a Promise 
+  that resolves the data as a JSON object or provide the error occured.
+
+  @param incident_number - An incident number to be searched for
+  @return - Promise. Resolves to JSON object containing details of incident.
+*/
+function getIncidentDetails(incident_number) {
+
+  return new Promise((resolve, reject) => {
+    var options = { 
+      method: 'GET',
+      url: baseurl + incidentUri,
+      qs: { 
+        sysparm_query: 'number=' + incident_number, 
+        sysparm_limit: '1' 
+      },
+      headers: {
+        'Cache-Control': 'no-cache',
+        Accept: 'application/json',
+        'Content-Type': 'application/json' 
+      } 
+    }
+
+    request(options, (error, response, body) => {
+      if (!error && response.statusCode == 200) {
+        resolve(JSON.parse(body))
       } else {
         console.log('request error!')
         // console.log(response)
