@@ -155,7 +155,8 @@ function getIncidentDetails(incident_number) {
       headers: {
         'Cache-Control': 'no-cache',
         Accept: 'application/json',
-        'Content-Type': 'application/json' 
+        'Content-Type': 'application/json' ,
+        Authorization: auth
       } 
     }
 

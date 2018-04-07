@@ -40,7 +40,7 @@ function processIntent(request_body) {
 				break
 
 			case 'search_incident':
-				getIncidentDetails()
+				getIncidentDetails(request_body.resolvedQuery) //Needs to change when we know where the information is coming from
 				.then(success => {
 					console.log('search_incident success!')
 					resolve(success)
