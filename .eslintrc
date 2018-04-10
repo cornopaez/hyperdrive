@@ -1,6 +1,6 @@
 {
   "rules": {
-      "no-unused-vars":"off",
+      "no-unused-vars":"error",
       "no-console": 0,
       "indent": 2,
       "quotes": [
