@@ -1,5 +1,6 @@
 const search = require('./sn-api.js').search
 const getUserDetails = require('./sn-api.js').getUserDetails
+const getIncidentDetails = require('./sn-api.js').getIncidentDetails
 
 module.exports = {
 	processIntent: processIntent
@@ -22,18 +23,42 @@ function processIntent(request_body) {
 					reject(error)
 				})
 				break
+
 			case 'search_user':
 				getUserDetails('mark.ludwig@pnc.com') //Needs to change when we know where the information is coming from
 				.then(success => {
 					console.log('search_user success!')
-					resolve(JSON.parse(success))
+					resolve(success)
 				})
 				.catch(error => {
 					console.log('search_user error!')
 					reject(error)
 				})
 				break
+
 			case 'create_incident':
+				break
+
+			case 'search_incident':
+				getIncidentDetails(request_body.resolvedQuery) //Needs to change when we know where the information is coming from
+				.then(success => {
+					console.log('search_incident success!')
+					resolve(success)
+				})
+				.catch(error => {
+					console.log('search_incident error!')
+					reject(error)
+				})
+				break
+
+			default:
+				var response = {
+					statusCode: 500,
+					body: {
+						message: 'Error: Unknown Intent Action'
+					}
+				}
+				reject(response)
 				break
 		}
 	})
