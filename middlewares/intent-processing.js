@@ -73,7 +73,7 @@ function processIntent(request_body) {
 				var response = {
 					statusCode: 500,
 					body: {
-						message: 'Error: Unknown Intent Action'
+						message: 'Error: Unknown Intent Action.'
 					}
 				}
 				reject(response)
