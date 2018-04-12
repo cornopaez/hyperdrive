@@ -19,7 +19,7 @@ router.post('/webhook', (req, res) => {
 })
 
 router.post('/search', (req, res) => {
-	console.log("search requested for " + JSON.stringify(req.body))
+	// console.log("search requested for " + JSON.stringify(req.body))
 
 	/**
 		The search function is looking for a specific parameter in the data being passed,
@@ -33,7 +33,7 @@ router.post('/search', (req, res) => {
 	})
 	.catch(data => {
 		console.log('processIntent error!')
-		res.status(data.statusCode).send(data.body)
+		res.status(data.statusCode ? data.statusCode : 500).send(data.body ? data.body : 'Fatal error.')
 	})
 })
 

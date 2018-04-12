@@ -15,7 +15,8 @@ const auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${arg
 module.exports = {
   search: search,
   getUserDetails: getUserDetails,
-  getIncidentDetails: getIncidentDetails
+  getIncidentDetails: getIncidentDetails,
+  closeIncident: closeIncident
 }
 
 /**
@@ -90,51 +91,6 @@ function getUserDetails(email_address) {
   })
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
   This function searches the configured ServiceNow endpoint for a specific incident. It returns a Promise 
   that resolves the data as a JSON object or provide the error occured.
@@ -168,6 +124,62 @@ function getIncidentDetails(incident_number) {
         // console.log(response)
         reject(response)
       }
+    })
+  })
+}
+
+/**
+  This function closes an incident in the configured ServiceNow endpoint. It returns a Promise 
+  that resolves the data returned by SN as a JSON object or provide the error occured.
+
+  @param incident_number - An incident number to be closed
+  @param close_notes - The resolution notes for the incident
+  @param close_code - Reolution Code is mandatory by SN
+  @param user_id - The sys_id for the user closing the case. The default for this demo will be the bot's sys_id
+  @return - Promise. Resolves to JSON object response from SN.
+*/
+function closeIncident(incident_number, close_notes, close_code = 'Closed/Resolved by Caller', user_id = '9ee1b13dc6112271007f9d0efdb69cd0') {
+
+  return new Promise((resolve, reject) => {
+    getIncidentDetails(incident_number)
+    .then(success => {
+      var options = { 
+          method: 'PATCH',
+          url: baseurl + incidentUri + '/' + success.result[0].sys_id,
+          headers: { 
+             'Cache-Control': 'no-cache',
+             Authorization: auth,
+             Accept: 'application/json',
+             'Content-Type': 'application/json' 
+          },
+          body: { 
+            close_notes: close_notes,
+            closed_by: user_id,
+            close_code: close_code,
+            closed_at: Date() 
+          },
+          json: true 
+        }
+
+      request(options, (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          resolve(body) // This response is already JSON. Parsing it will give an error.
+        } else {
+          console.log('request error!')
+          // console.log(response)
+          reject(response)
+        }
+      })        
+    })
+    .catch(error => {
+      // If incident number comes up empty, handle error
+      var response = {
+            statusCode: 500,
+            body: {
+              message: 'Error: Could not close incident. Incident number is invalid. Please try again.'
+            }
+          }
+      reject(response)
     })
   })
 }
