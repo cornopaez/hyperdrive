@@ -7,17 +7,6 @@ module.exports = router
 
 router.post('/webhook', (req, res) => {
     console.log(req.body)
-    res.sendStatus('200')
-})
-
-router.post('/search', (req, res) => {
-    // console.log("search requested for " + JSON.stringify(req.body))
-
-    /**
-        The search function is looking for a specific parameter in the data being passed,
-        based on the data passed from API.AI (Webdialog)
-        Adjust accordingly if necessary.
-    */
     processIntent(req.body)
         .then(success => {
             // console.log(success)
