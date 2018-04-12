@@ -2,7 +2,8 @@ const request = require('request')
 const btoa = require('btoa')
 const argv = require('yargs').argv
 const urlencode = require('urlencode')
-const baseurl = "https://gpietro3demo.service-now.com"
+// const baseurl = "https://gpietro3demo.service-now.com"
+const baseurl = "https://pncmelliniumfalcon.service-now.com"
 const dotenv = require('dotenv').config()
 const searchuri = '/api/now/table/kb_knowledge'
 const userUri = '/api/now/table/sys_user'
@@ -16,7 +17,8 @@ module.exports = {
   search: search,
   getUserDetails: getUserDetails,
   getIncidentDetails: getIncidentDetails,
-  closeIncident: closeIncident
+  closeIncident: closeIncident,
+  getRequestedApprovalsForUser, getRequestedApprovalsForUser
 }
 
 /**
@@ -62,7 +64,14 @@ function search(search_string) {
   })
 }
 
-function getUserDetails(email_address) {
+/**
+  This function searches the configured ServiceNow endpoint for a specific user. It returns a Promise 
+  that resolves the data as a JSON object or provide the error occured.
+
+  @param email_address - The email address of the user
+  @return - Promise. Resolves to JSON object containing details of incident.
+*/
+function getUserDetails(email_address = 'fred.luddy@example.com') {
 
 
   return new Promise((resolve, reject) => {
@@ -83,7 +92,7 @@ function getUserDetails(email_address) {
       if (!error && response.statusCode == 200) {
         resolve(JSON.parse(body))
       } else {
-        console.log('request error!')
+        console.log('user detail request error!')
         // console.log(response)
         reject(response)
       }
@@ -177,6 +186,54 @@ function closeIncident(incident_number, close_notes, close_code = 'Closed/Resolv
             statusCode: 500,
             body: {
               message: 'Error: Could not close incident. Incident number is invalid. Please try again.'
+            }
+          }
+      reject(response)
+    })
+  })
+}
+
+/**
+  This function returns all pending approvals for a user. It returns a Promise 
+  that resolves the data returned by SN as a JSON object or provide the error occured.
+
+  @param email_address - The email address of the user. The default is someone who currently has approvals pending.
+  @return - Promise. Resolves to JSON object response from SN.
+*/
+function getRequestedApprovalsForUser(email_address = 'fred.luddy@example.com') {
+  return new Promise((resolve, reject) => {
+    getUserDetails(email_address)
+    .then(success => {
+      var options = { 
+        method: 'GET',
+        url: 'https://pncmelliniumfalcon.service-now.com/api/now/table/sysapproval_approver',
+        qs: { 
+          sysparm_query: 'approver.nameSTARTSWITH' + success.result[0].name + '^stateINrequested',
+          sysparm_display_value: 'true',
+          sysparam_limit: '5' 
+        },
+        headers: { 
+          'Cache-Control': 'no-cache',
+          Authorization: auth 
+         } 
+       }
+      
+      request(options, (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          resolve(JSON.parse(body))
+        } else {
+          console.log('approvals request error!')
+          // console.log(response)
+          reject(response)
+        }
+      })
+    })
+    .catch(error => {
+      // If incident number comes up empty, handle error
+      var response = {
+            statusCode: 500,
+            body: {
+              message: 'Error: Could not find user. Try again.'
             }
           }
       reject(response)
