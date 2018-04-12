@@ -3,7 +3,9 @@ const users = {
     '29:1xafAd1PSIH3RuvwVq2wqqj4ve53EVEBBe4qP7AXYYeo': 'Womp Rats User'
 }
 
-module.exports.processIntent = processIntent
+module.exports = {
+    processIntent: processIntent
+}
 
 function processIntent(request_body) {
 
@@ -12,7 +14,7 @@ function processIntent(request_body) {
         switch (request_body.result.action) {
 
         case 'input.welcome':
-            console.log('processing default welcome intent')
+            console.log(Date() + ': processing default welcome intent\n')
             resolve(
                 JSON.stringify({
                     'speech': `Hello, ${users[request_body.originalRequest.data.address.user.id]}. I am your PNC Assistant. How may I help you?`,
@@ -22,33 +24,41 @@ function processIntent(request_body) {
             break
 
         case 'search_kb':
+            console.log('processing search_kb intent')
             search(request_body.result.resolvedQuery) //Needs to change when we know where the information is coming from
                 .then(success => {
-                    console.log('search_kb success!' + '\n' + success)
-                    var result = {
-                        'speech': 'KB Article',
-                        'displayText': 'KB Article',
-                        'messages': [
-                            {
-                                'buttons': [
+                    console.log(Date() + ': ' + 'search_kb success!' + '\n' + success)
+                    try {
+                        for (let searchResult of success.result) {
+                            console.log(Date() + ': ' + 'Search Result: ' + searchResult.short_description)
+                            console.log(Date() + ': ' + 'Search Result ID: ' + searchResult.sys_id)
+                            var result = {
+                                'speech': 'KB Article',
+                                'displayText': 'KB Article',
+                                'messages': [
                                     {
-                                        'postback': baseurl + kburi + success.result.sys_id,
-                                        'text': JSON.stringify(success.result.short_description)
+                                        'buttons': [
+                                            {
+                                                'postback': baseurl + kburi + searchResult.sys_id,
+                                                'text': searchResult.short_description
+                                            }
+                                        ],
+                                        'platform': 'skype',
+                                        'subtitle': 'KB Article',
+                                        'title': 'KB Article',
+                                        'type': 1
                                     }
-                                ],
-                                'platform': 'skype',
-                                'subtitle': 'KB Article',
-                                'title': 'KB Article',
-                                'type': 1
+                                ]
                             }
-                        ]
+                            resolve(result)
+                        }
+                    } catch (error) {
+                        console.log(Date() + ': ' + 'Error generating reply message for api.ai in search_kb' + error)
+                        reject(error)
                     }
-
-                    console.log(`Results: ${JSON.stringify(result)}`)
-                    resolve(JSON.stringify(result))
                 })
                 .catch(error => {
-                    console.log('search_kb error!')
+                    console.log(Date() + ': ' + 'search_kb error: '+ error)
                     reject(error)
                 })
             break
