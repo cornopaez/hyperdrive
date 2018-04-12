@@ -1,7 +1,5 @@
-const search = require('./sn-api.js').search
-const getUserDetails = require('./sn-api.js').getUserDetails
-const getIncidentDetails = require('./sn-api.js').getIncidentDetails
-const closeIncident = require('./sn-api.js').closeIncident
+const {search, getUserDetails, createIncident, getIncidentDetails, closeIncident } = require('./sn-api')
+
 
 module.exports = {
     processIntent: processIntent
@@ -38,6 +36,15 @@ function processIntent(request_body) {
             break
 
         case 'create_incident':
+            createIncident('open', 'this is a test', 'Pierre Salera')
+                .then(success => {
+                    console.log('create incident success!')
+                    resolve(success)
+                })
+                .catch(error => {
+                    console.log('create incident error!')
+                    reject(error)
+                })
             break
 
         case 'search_incident':

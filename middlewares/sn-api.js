@@ -16,7 +16,8 @@ module.exports = {
     search: search,
     getUserDetails: getUserDetails,
     getIncidentDetails: getIncidentDetails,
-    closeIncident: closeIncident
+    closeIncident: closeIncident,
+    createIncident: createIncident
 }
 
 /**
@@ -84,7 +85,7 @@ function getUserDetails(email_address) {
                 'Cache-Control': 'no-cache',
                 Authorization: auth 
             } 
-        };
+        }
 
         request(options, (error, response, body) => {
             if (!error && response.statusCode == 200) {
@@ -101,7 +102,6 @@ function getUserDetails(email_address) {
 /**
   This function searches the configured ServiceNow endpoint for a specific incident. It returns a Promise 
   that resolves the data as a JSON object or provide the error occured.
-
   @param incident_number - An incident number to be searched for
   @return - Promise. Resolves to JSON object containing details of incident.
 */
@@ -122,7 +122,7 @@ function getIncidentDetails(incident_number) {
                 Authorization: auth
             } 
         }
-
+    
         request(options, (error, response, body) => {
             if (!error && response.statusCode == 200) {
                 resolve(JSON.parse(body))
@@ -132,6 +132,80 @@ function getIncidentDetails(incident_number) {
                 reject(response)
             }
         })
+    })
+}
+
+function createIncident(state, short_description, caller_id) {
+
+    return new Promise((resolve, reject) => {
+        switch (state) {
+        case 'open':
+            var openOptions = {
+                method: 'POST',
+                uri: baseurl + incidentUri,
+                qs: {
+                    sysparm_display_value: true
+                },
+                headers: { 
+                    'Cache-Control': 'no-cache',
+                    Authorization: auth,
+                    'Content-Type': 'application/json'
+                },
+                body: {
+                    short_description: short_description,
+                    state: '1',
+                    caller_id: caller_id,
+                    urgency: '3'
+                }
+            }
+
+            request(openOptions, (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    resolve(JSON.parse(body))
+                } else {
+                    console.log('request error!')
+                    // console.log(response)
+                    reject(response)
+                }
+            })
+            break
+        case 'closed':
+            var closeOptions = {
+                method: 'POST',
+                uri: baseurl + incidentUri,
+                qs: {
+                    sysparm_display_value: true
+                },
+                headers: { 
+                    'Cache-Control': 'no-cache',
+                    Authorization: auth,
+                    'Content-Type': 'application/json'
+                },
+                body: {
+                    short_description: short_description,
+                    state: '3',
+                    caller_id: caller_id,
+                    close_notes: 'Resolved by PNC Assistant',
+                    close_code: 'Closed/Resolved by Caller',
+                    closed_at: Date(),
+                    closed_by: caller_id,
+                    urgency: '3'
+                }
+            }
+
+            request(closeOptions, (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    resolve(JSON.parse(body))
+                } else {
+                    console.log('request error!')
+                    // console.log(response)
+                    reject(response)
+                }
+            })
+            break
+        default:
+            break
+        }
     })
 }
 
@@ -183,7 +257,7 @@ function closeIncident(incident_number, close_notes, close_code = 'Closed/Resolv
                 var response = {
                     statusCode: 500,
                     body: {
-                        message: 'Error: Could not close incident. Incident number is invalid. Please try again.'
+                        message: 'Error: Could not close incident. Incident number is invalid. Please try again... Error:' + error
                     }
                 }
                 reject(response)
