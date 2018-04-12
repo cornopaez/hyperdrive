@@ -1,9 +1,9 @@
-const {search, getUserDetails, createIncident, getIncidentDetails, closeIncident } = require('./sn-api')
-
-
-module.exports = {
-    processIntent: processIntent
+const {search, getUserDetails, createIncident, getIncidentDetails, closeIncident, kburi, baseurl } = require('./sn-api')
+const users = {
+    '29:1xafAd1PSIH3RuvwVq2wqqj4ve53EVEBBe4qP7AXYYeo': 'Womp Rats User'
 }
+
+module.exports.processIntent = processIntent
 
 function processIntent(request_body) {
 
@@ -11,11 +11,41 @@ function processIntent(request_body) {
 
         switch (request_body.result.action) {
 
+        case 'input.welcome':
+            console.log('processing default welcome intent')
+            resolve(
+                JSON.stringify({
+                    'speech': `Hello, ${users[request_body.originalRequest.data.address.user.id]}. I am your PNC Assistant. How may I help you?`,
+                    'displayText': `Hello, ${users[request_body.originalRequest.data.address.user.id]}. I am your PNC Assistant. How may I help you?`
+                })
+            )
+            break
+
         case 'search_kb':
-            search(request_body.result.action) //Needs to change when we know where the information is coming from
+            search(request_body.result.resolvedQuery) //Needs to change when we know where the information is coming from
                 .then(success => {
-                    console.log('search_kb success!')
-                    resolve(success)
+                    console.log('search_kb success!' + '\n' + success)
+                    var result = {
+                        'speech': 'KB Article',
+                        'displayText': 'KB Article',
+                        'messages': [
+                            {
+                                'buttons': [
+                                    {
+                                        'postback': baseurl + kburi + success.result.sys_id,
+                                        'text': JSON.stringify(success.result.short_description)
+                                    }
+                                ],
+                                'platform': 'skype',
+                                'subtitle': 'KB Article',
+                                'title': 'KB Article',
+                                'type': 1
+                            }
+                        ]
+                    }
+
+                    console.log(`Results: ${JSON.stringify(result)}`)
+                    resolve(JSON.stringify(result))
                 })
                 .catch(error => {
                     console.log('search_kb error!')

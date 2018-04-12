@@ -1,15 +1,16 @@
 const express = require('express')
 const router = express.Router()
 const dotenv = require('dotenv').config() // eslint-disable-line 
-const { search, processIntent } = require('../middlewares/sn-api') // eslint-disable-line
+const intents = require('../middlewares/intent-processing.js')
 
 module.exports = router
 
 router.post('/webhook', (req, res) => {
-    console.log(req.body)
-    processIntent(req.body)
+    console.log(JSON.stringify(req.body))
+    intents.processIntent(req.body)
         .then(success => {
-            // console.log(success)
+            console.log(success)
+            res.setHeader('Content-Type', 'application/json')
             res.send(success)
         })
         .catch(data => {

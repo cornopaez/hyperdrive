@@ -17,7 +17,9 @@ module.exports = {
     getUserDetails: getUserDetails,
     getIncidentDetails: getIncidentDetails,
     closeIncident: closeIncident,
-    createIncident: createIncident
+    createIncident: createIncident,
+    baseurl: baseurl,
+    kburi: kburi
 }
 
 /**
@@ -58,6 +60,7 @@ function search(search_string) {
             } else {
                 reject(response)
             }
+            console.log(search_results)
             resolve(search_results)
         })
     })
