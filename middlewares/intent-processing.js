@@ -1,6 +1,7 @@
 const {search, getUserDetails, createIncident, getIncidentDetails, closeIncident, kburi, baseurl } = require('./sn-api')
 const users = {
-    '29:1xafAd1PSIH3RuvwVq2wqqj4ve53EVEBBe4qP7AXYYeo': 'Womp Rats User'
+    '29:1xafAd1PSIH3RuvwVq2wqqj4ve53EVEBBe4qP7AXYYeo': 'Womp Rats User',
+    '29:1k74gN7zOhungfGosSKFS0REaJRMuX_-juF_xRdTSodE': 'Womp Rats Manager'
 }
 
 module.exports = {
@@ -44,9 +45,18 @@ function processIntent(request_body) {
                                             }
                                         ],
                                         'platform': 'skype',
-                                        'subtitle': 'KB Article',
+                                        'subtitle': searchResult.short_description,
                                         'title': 'KB Article',
                                         'type': 1
+                                    },
+                                    {
+                                        'platform': 'skype',
+                                        'replies': [
+                                            'Yes',
+                                            'No'
+                                        ],
+                                        'title': 'Did this resolve your issue?',
+                                        'type': 2
                                     }
                                 ]
                             }

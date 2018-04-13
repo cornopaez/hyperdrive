@@ -1,7 +1,6 @@
 const request = require('request')
 const btoa = require('btoa')
 const argv = require('yargs').argv
-const urlencode = require('urlencode')
 const baseurl = 'https://gpietro3demo.service-now.com'
 const dotenv = require('dotenv').config() // eslint-disable-line no-unused-vars
 const searchuri = '/api/now/table/kb_knowledge'
@@ -30,16 +29,16 @@ module.exports = {
   @return - Promise. Resolves to plain text from relevant articles returned.
 */
 function search(search_string) {
-    
+
     return new Promise((resolve, reject) =>{
         console.log(Date() + ': ' + 'Search String: ' + search_string)
 
         var search_query = '123TEXTQUERY321=' + search_string // Beginning of string necessary for query to work
         console.log(Date() + ': ' + 'Search Query: ' + search_query)
-        var options = { 
+        var options = {
             method: 'GET',
             uri: baseurl + searchuri,
-            qs: { 
+            qs: {
                 sysparm_query: search_query,
                 sysparm_limit: '1',
                 sysparm_display_value: true,
@@ -48,7 +47,7 @@ function search(search_string) {
             json: true,
             headers: {
                 'Cache-Control': 'no-cache',
-                Authorization: auth 
+                Authorization: auth
             }
         }
 
@@ -75,17 +74,17 @@ function getUserDetails(email_address) {
 
 
     return new Promise((resolve, reject) => {
-        var options = { 
+        var options = {
             method: 'GET',
             uri: baseurl + userUri,
-            qs: { 
+            qs: {
                 sysparm_query: 'email=' + email_address,
-                sysparm_limit: '1' //This can be changed to suit our needs 
+                sysparm_limit: '1' //This can be changed to suit our needs
             },
-            headers: { 
+            headers: {
                 'Cache-Control': 'no-cache',
-                Authorization: auth 
-            } 
+                Authorization: auth
+            }
         }
 
         request(options, (error, response, body) => {
@@ -100,7 +99,7 @@ function getUserDetails(email_address) {
 }
 
 /**
-  This function searches the configured ServiceNow endpoint for a specific incident. It returns a Promise 
+  This function searches the configured ServiceNow endpoint for a specific incident. It returns a Promise
   that resolves the data as a JSON object or provide the error occured.
   @param incident_number - An incident number to be searched for
   @return - Promise. Resolves to JSON object containing details of incident.
@@ -108,21 +107,21 @@ function getUserDetails(email_address) {
 function getIncidentDetails(incident_number) {
 
     return new Promise((resolve, reject) => {
-        var options = { 
+        var options = {
             method: 'GET',
             url: baseurl + incidentUri,
-            qs: { 
-                sysparm_query: 'number=' + incident_number, 
-                sysparm_limit: '1' 
+            qs: {
+                sysparm_query: 'number=' + incident_number,
+                sysparm_limit: '1'
             },
             headers: {
                 'Cache-Control': 'no-cache',
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
                 Authorization: auth
-            } 
+            }
         }
-    
+
         request(options, (error, response, body) => {
             if (!error && response.statusCode == 200) {
                 resolve(JSON.parse(body))
@@ -146,7 +145,7 @@ function createIncident(state, short_description, caller_id) {
                 qs: {
                     sysparm_display_value: true
                 },
-                headers: { 
+                headers: {
                     'Cache-Control': 'no-cache',
                     Authorization: auth,
                     'Content-Type': 'application/json'
@@ -176,7 +175,7 @@ function createIncident(state, short_description, caller_id) {
                 qs: {
                     sysparm_display_value: true
                 },
-                headers: { 
+                headers: {
                     'Cache-Control': 'no-cache',
                     Authorization: auth,
                     'Content-Type': 'application/json'
@@ -209,7 +208,7 @@ function createIncident(state, short_description, caller_id) {
 }
 
 /**
-  This function closes an incident in the configured ServiceNow endpoint. It returns a Promise 
+  This function closes an incident in the configured ServiceNow endpoint. It returns a Promise
   that resolves the data returned by SN as a JSON object or provide the error occured.
 
   @param incident_number - An incident number to be closed
@@ -223,10 +222,10 @@ function closeIncident(incident_number, close_notes, close_code = 'Closed/Resolv
     return new Promise((resolve, reject) => {
         getIncidentDetails(incident_number)
             .then(success => {
-                var options = { 
+                var options = {
                     method: 'PATCH',
                     url: baseurl + incidentUri + '/' + success.result[0].sys_id,
-                    headers: { 
+                    headers: {
                         'Cache-Control': 'no-cache',
                         Authorization: auth,
                         Accept: 'application/json',
@@ -246,10 +245,9 @@ function closeIncident(incident_number, close_notes, close_code = 'Closed/Resolv
                         resolve(body) // This response is already JSON. Parsing it will give an error.
                     } else {
                         console.log('request error!')
-                        // console.log(response)
                         reject(response)
                     }
-                })        
+                })
             })
             .catch(error => {
             // If incident number comes up empty, handle error
