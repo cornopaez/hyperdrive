@@ -8,6 +8,7 @@ const dotenv = require('dotenv').config()
 const searchuri = '/api/now/table/kb_knowledge'
 const userUri = '/api/now/table/sys_user'
 const incidentUri = '/api/now/table/incident'
+const sysapprovalUri = '/api/now/table/sysapproval_approver'
 const kburi = `/nav_to.do?uri=%2Fkb_view.do%3Fsys_kb_id%3D`
 const auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
 
@@ -206,7 +207,7 @@ function getRequestedApprovalsForUser(email_address = 'fred.luddy@example.com') 
     .then(success => {
       var options = { 
         method: 'GET',
-        url: 'https://pncmelliniumfalcon.service-now.com/api/now/table/sysapproval_approver',
+        url: baseurl + sysapprovalUri,
         qs: { 
           sysparm_query: 'approver.nameSTARTSWITH' + success.result[0].name + '^stateINrequested',
           sysparm_display_value: 'true',
@@ -229,7 +230,57 @@ function getRequestedApprovalsForUser(email_address = 'fred.luddy@example.com') 
       })
     })
     .catch(error => {
-      // If incident number comes up empty, handle error
+      var response = {
+            statusCode: 500,
+            body: {
+              message: 'Error: Could not find user. Try again.'
+            }
+          }
+      reject(response)
+    })
+  })
+}
+
+/**
+  This function approves or rejects a pending requested review for a request. It returns a Promise 
+  that resolves the data returned by SN as a JSON object or provide the error occured.
+
+  @param request_sys_id - The sys_id of the request being approved/rejected
+  @param new_state - It specifies the new state of the request. I.E: Approved, Rejected, No Longer Needed
+  @param email_address - The email for the user processing the review
+  @return - Promise. Resolves to JSON object response from SN.
+*/
+function processReviewForRequest(request_sys_id, new_state, email_address = 'fred.luddy@example.com') {
+  return new Promise((resolve, reject) => {
+    getUserDetails(email_address)
+    .then(success => {
+      var options = { 
+        method: 'PATCH',
+        url: baseurl + sysapprovalUri + '/' + request_sys_id,
+        headers: {
+          'Cache-Control': 'no-cache',
+          Authorization: auth,
+          'Content-Type': 'application/json' },
+        body: { 
+          state: new_state,
+          approver: success.result[0].sys_id 
+        },
+        json: true 
+      }
+
+      request(options, (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          console.log(Date() + ': '+ 'processReviewForRequest request success!')
+          resolve(JSON.parse(body))
+        } else {
+          console.log(Date() + ': '+ 'processReviewForRequest request error!')
+          // console.log(response)
+          reject(response)
+        }
+      })
+    })
+    .catch(error => {
+      console.log(Date() + ': '+ 'processReviewForRequest error - getUserDetails failed.')
       var response = {
             statusCode: 500,
             body: {
