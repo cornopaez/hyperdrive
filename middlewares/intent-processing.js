@@ -1,8 +1,11 @@
-const { search, getUserDetails, getIncidentDetails, closeIncident, getRequestedApprovalsForUser, processReviewForRequest } = require('./sn-api.js')
-// const getUserDetails = require('./sn-api.js').getUserDetails
-// const getIncidentDetails = require('./sn-api.js').getIncidentDetails
-// const closeIncident = require('./sn-api.js').closeIncident
-// const getRequestedApprovalsForUser = require('./sn-api.js').getRequestedApprovalsForUser
+const { 
+	search, 
+	getUserDetails, 
+	getIncidentDetails, 
+	closeIncident, 
+	getRequestedApprovalsForUser, 
+	processReviewForRequest,
+	queryProductCatalog } = require('./sn-api.js')
 
 module.exports = {
 	processIntent: processIntent
@@ -95,7 +98,21 @@ function processIntent(request_body) {
 					resolve(success)
 				})
 				.catch(error =>{
-					console.log('process_request success!')
+					console.log('process_request error!')
+					resolve(error)
+				})
+
+				break
+
+			case 'check_catalog':
+				var item_name // This needs to be populated and passed to function with info from api.ai
+				queryProductCatalog('AdoBe')
+				.then(success => {
+					console.log('check_catalog success!')
+					resolve(success)
+				})
+				.catch(error =>{
+					console.log('check_catalog error!')
 					resolve(error)
 				})
 
