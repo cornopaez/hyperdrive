@@ -19,7 +19,8 @@ module.exports = {
   getUserDetails: getUserDetails,
   getIncidentDetails: getIncidentDetails,
   closeIncident: closeIncident,
-  getRequestedApprovalsForUser, getRequestedApprovalsForUser
+  getRequestedApprovalsForUser: getRequestedApprovalsForUser,
+  processReviewForRequest: processReviewForRequest
 }
 
 /**
@@ -205,29 +206,38 @@ function getRequestedApprovalsForUser(email_address = 'fred.luddy@example.com') 
   return new Promise((resolve, reject) => {
     getUserDetails(email_address)
     .then(success => {
-      var options = { 
-        method: 'GET',
-        url: baseurl + sysapprovalUri,
-        qs: { 
-          sysparm_query: 'approver.nameSTARTSWITH' + success.result[0].name + '^stateINrequested',
-          sysparm_display_value: 'true',
-          sysparam_limit: '5' 
-        },
-        headers: { 
-          'Cache-Control': 'no-cache',
-          Authorization: auth 
-         } 
-       }
+
+      try {
+        var options = { 
+          method: 'GET',
+          url: baseurl + sysapprovalUri,
+          qs: { 
+            sysparm_query: 'approver.nameSTARTSWITH' + success.result[0].name + '^stateINrequested',
+            sysparm_display_value: 'true',
+            sysparam_limit: '5' 
+          },
+          headers: { 
+            'Cache-Control': 'no-cache',
+            Authorization: auth 
+           } 
+         }
+        
+        request(options, (error, response, body) => {
+          if (!error && response.statusCode == 200) {
+            console.log(Date() + ': '+ 'getRequestedApprovalsForUser request success!')
+            resolve(JSON.parse(body))
+          } else {
+            console.log(Date() + ': '+ 'getRequestedApprovalsForUser request error!')
+            // console.log(response)
+            reject(response)
+          }
+        })
+
+      } catch (error) {
+        console.log(Date() + ': '+ 'getRequestedApprovalsForUser request error!' + error)
+        reject(error)
+      }
       
-      request(options, (error, response, body) => {
-        if (!error && response.statusCode == 200) {
-          resolve(JSON.parse(body))
-        } else {
-          console.log('approvals request error!')
-          // console.log(response)
-          reject(response)
-        }
-      })
     })
     .catch(error => {
       var response = {
@@ -250,34 +260,42 @@ function getRequestedApprovalsForUser(email_address = 'fred.luddy@example.com') 
   @param email_address - The email for the user processing the review
   @return - Promise. Resolves to JSON object response from SN.
 */
-function processReviewForRequest(request_sys_id, new_state, email_address = 'fred.luddy@example.com') {
+function processReviewForRequest(request_sys_id, new_state = 'Approved', email_address = 'fred.luddy@example.com') {
   return new Promise((resolve, reject) => {
     getUserDetails(email_address)
     .then(success => {
-      var options = { 
-        method: 'PATCH',
-        url: baseurl + sysapprovalUri + '/' + request_sys_id,
-        headers: {
-          'Cache-Control': 'no-cache',
-          Authorization: auth,
-          'Content-Type': 'application/json' },
-        body: { 
-          state: new_state,
-          approver: success.result[0].sys_id 
-        },
-        json: true 
-      }
-
-      request(options, (error, response, body) => {
-        if (!error && response.statusCode == 200) {
-          console.log(Date() + ': '+ 'processReviewForRequest request success!')
-          resolve(JSON.parse(body))
-        } else {
-          console.log(Date() + ': '+ 'processReviewForRequest request error!')
-          // console.log(response)
-          reject(response)
+      try {
+        var comments = 'Request was processed via PNC Assistant on behalf of ' + success.result[0].name + ' (' + success.result[0].email + ')'
+        var options = { 
+          method: 'PATCH',
+          url: baseurl + sysapprovalUri + '/' + request_sys_id,
+          headers: {
+            'Cache-Control': 'no-cache',
+            Authorization: auth,
+            'Content-Type': 'application/json' },
+          body: { 
+            state: new_state,
+            comments: comments
+          },
+          json: true 
         }
-      })
+
+        request(options, (error, response, body) => {
+          if (!error && response.statusCode == 200) {
+            console.log(Date() + ': '+ 'processReviewForRequest request success!')
+            resolve(body)
+          } else {
+            console.log(Date() + ': '+ 'processReviewForRequest request error!')
+            // console.log(response)
+            reject(response)
+          }
+        })
+
+      } catch (error) {
+        console.log(Date() + ': '+ 'processReviewForRequest request error! ' + error)
+        reject(error)
+      }
+      
     })
     .catch(error => {
       console.log(Date() + ': '+ 'processReviewForRequest error - getUserDetails failed.')
