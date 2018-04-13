@@ -76,15 +76,14 @@ function search(search_string) {
   @param email_address - The email address of the user
   @return - Promise. Resolves to JSON object containing details of incident.
 */
-function getUserDetails(email_address = 'fred.luddy@example.com') {
-
+function getUserDetails(skype_uid) {
 
   return new Promise((resolve, reject) => {
     var options = { 
       method: 'GET',
       uri: baseurl + userUri,
       qs: { 
-        sysparm_query: 'email=' + email_address,
+        sysparm_query: 'u_skypeuid=' + skype_uid,
         sysparm_limit: '1' //This can be changed to suit our needs 
       },
       headers: { 
@@ -206,9 +205,9 @@ function closeIncident(incident_number, close_notes, close_code = 'Closed/Resolv
   @param email_address - The email address of the user. The default is someone who currently has approvals pending.
   @return - Promise. Resolves to JSON object response from SN.
 */
-function getRequestedApprovalsForUser(email_address = 'fred.luddy@example.com') {
+function getRequestedApprovalsForUser(skype_uid) {
   return new Promise((resolve, reject) => {
-    getUserDetails(email_address)
+    getUserDetails(skype_uid)
     .then(success => {
 
       try {
@@ -264,9 +263,9 @@ function getRequestedApprovalsForUser(email_address = 'fred.luddy@example.com') 
   @param email_address - The email for the user processing the review
   @return - Promise. Resolves to JSON object response from SN.
 */
-function processReviewForRequest(request_sys_id, new_state = 'Approved', email_address = 'fred.luddy@example.com') {
+function processReviewForRequest(request_sys_id, skype_uid, new_state = 'Approved') {
   return new Promise((resolve, reject) => {
-    getUserDetails(email_address)
+    getUserDetails(skype_uid)
     .then(success => {
       try {
         var comments = 'Request was processed via PNC Assistant on behalf of ' + success.result[0].name + ' (' + success.result[0].email + ')'
@@ -355,14 +354,14 @@ function queryProductCatalog(item_name) {
   that resolves the data returned by SN as a JSON object or provide the error occured.
 
   @param item_name - The name of the item being sought
-  @param beneficiary_skype_id - The skype UID for the beneficiary of this request
+  @param skype_uid - The skype UID for the beneficiary of this request
   @param approval_requested - Optional. This defines whether the request triggers the approval workflow in SN
   @return - Promise. Resolves to JSON object response from SN.
 */
-function createRequest(item_name, beneficiary_skype_id, approval_requested = 'Requested') {
+function createRequest(item_name, skype_uid, approval_requested = 'Requested') {
   return new Promise((resolve, reject) => {
 
-    Promise.all([queryProductCatalog(item_name), getUserDetails()])
+    Promise.all([queryProductCatalog(item_name), getUserDetails(skype_uid)])
     .then(success => {
       var item_data = success[0].result[0]
       var user_data = success[1].result[0]

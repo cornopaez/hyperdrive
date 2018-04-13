@@ -31,7 +31,8 @@ function processIntent(request_body) {
 				break
 
 			case 'search_user':
-				getUserDetails('mark.ludwig@pnc.com') //Needs to change when we know where the information is coming from
+				var skype_uid = request_body.originalRequest.data.address.user.id
+				getUserDetails(skype_uid) //Needs to change when we know where the information is coming from
 				.then(success => {
 					console.log('search_user success!')
 					resolve(success)
@@ -75,11 +76,8 @@ function processIntent(request_body) {
 				break
 
 			case 'pending_approvals':
-			// 	// Local vars
-			// 	// These are based on a sample call from API.AI
-			// 	var email_address = request_body.result.originalRequest.data.address.from.id // This needs to be discussed as this will not exist in call from api.ai
-
-				getRequestedApprovalsForUser()
+				var skype_uid = request_body.originalRequest.data.address.user.id
+				getRequestedApprovalsForUser(skype_uid)
 				.then(success => {
 					console.log('pending_approvals success!')
 					resolve(success)
@@ -93,7 +91,8 @@ function processIntent(request_body) {
 			case 'process_request':
 				var new_state // This needs to be populated and passed to function with info from api.ai
 				var request_sys_id // This needs to be populated and passed to function with info from api.ai
-				processReviewForRequest(request_sys_id, new_state)
+				var skype_uid = request_body.originalRequest.data.address.user.id
+				processReviewForRequest('10f9447adba52200a6a2b31be0b8f57c', skype_uid)
 				.then(success => {
 					console.log('process_request success!')
 					resolve(success)
@@ -121,9 +120,9 @@ function processIntent(request_body) {
 
 			case 'create_request':
 				var item_name // This needs to be populated and passed to function with info from api.ai
-				var user_skype_id // This needs to be populated and passed to function with info from api.ai
+				var skype_uid = request_body.originalRequest.data.address.user.id
 
-				createRequest('AdoBe', '0')
+				createRequest('AdoBe', skype_uid)
 				.then(success => {
 					console.log('create_request success!')
 					resolve(success)
