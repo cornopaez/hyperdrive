@@ -65,3 +65,6 @@ ngrok
 
 #Filesystem
 .DS_Store
+
+#eslint.json
+.eslintrc.json
