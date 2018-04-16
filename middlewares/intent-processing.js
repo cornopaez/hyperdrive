@@ -5,7 +5,8 @@ const {
 	closeIncident, 
 	getRequestedApprovalsForUser, 
 	processReviewForRequest,
-	queryProductCatalog } = require('./sn-api.js')
+	queryProductCatalog,
+	createRequest } = require('./sn-api.js')
 
 module.exports = {
 	processIntent: processIntent
@@ -116,6 +117,21 @@ function processIntent(request_body) {
 					resolve(error)
 				})
 
+				break
+
+			case 'create_request':
+				var item_name // This needs to be populated and passed to function with info from api.ai
+				var user_skype_id // This needs to be populated and passed to function with info from api.ai
+
+				createRequest('AdoBe', '0')
+				.then(success => {
+					console.log('create_request success!')
+					resolve(success)
+				})
+				.catch(error =>{
+					console.log('create_request error!')
+					resolve(error)
+				})
 				break
 
 			default:

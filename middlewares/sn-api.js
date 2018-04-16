@@ -22,7 +22,8 @@ module.exports = {
   closeIncident: closeIncident,
   getRequestedApprovalsForUser: getRequestedApprovalsForUser,
   processReviewForRequest: processReviewForRequest,
-  queryProductCatalog: queryProductCatalog
+  queryProductCatalog: queryProductCatalog,
+  createRequest: createRequest
 }
 
 /**
@@ -94,6 +95,7 @@ function getUserDetails(email_address = 'fred.luddy@example.com') {
 
     request(options, (error, response, body) => {
       if (!error && response.statusCode == 200) {
+        console.log(Date() + ': user detail request success!')
         resolve(JSON.parse(body))
       } else {
         console.log('user detail request error!')
@@ -343,6 +345,67 @@ function queryProductCatalog(item_name) {
         // console.log(response)
         reject(response)
       }
+    })
+  })
+}
+
+/**
+  This function creates a request for a given item. It first checks the catalog to get information
+  about the item, then that information to create the request. It returns a Promise 
+  that resolves the data returned by SN as a JSON object or provide the error occured.
+
+  @param item_name - The name of the item being sought
+  @param beneficiary_skype_id - The skype UID for the beneficiary of this request
+  @param approval_requested - Optional. This defines whether the request triggers the approval workflow in SN
+  @return - Promise. Resolves to JSON object response from SN.
+*/
+function createRequest(item_name, beneficiary_skype_id, approval_requested = 'Requested') {
+  return new Promise((resolve, reject) => {
+
+    Promise.all([queryProductCatalog(item_name), getUserDetails()])
+    .then(success => {
+      var item_data = success[0].result[0]
+      var user_data = success[1].result[0]
+
+      try {
+        var short_description = user_data.name + ' (' + user_data.email + ') is requesting ' + item_data.name
+        var description = 'This request has been processed by PNC Assistant. ' + user_data.name + ' (' + user_data.email + ') is requesting ' + item_data.name
+        var options = { 
+          method: 'POST',
+          url: 'https://pncmelliniumfalcon.service-now.com/api/now/table/sc_request',
+          headers: {
+            'Cache-Control': 'no-cache',
+            Authorization: auth,
+            'Content-Type': 'application/json' },
+          body: { 
+            approval: approval_requested,
+             upon_approval: 'proceed',
+             requested_for: user_data.sys_id,
+             price: item_data.price,
+             short_description: short_description, // Needs discussion
+             description: description
+           },
+          json: true 
+        }
+
+        request(options, (error, response, body) => {
+          if (!error && response.statusCode == 201) {
+            console.log(Date() + ': '+ 'createRequest request success!')
+            resolve(body)
+          } else {
+            console.log(Date() + ': '+ 'createRequest request error!')
+            // console.log(response)
+            reject(response)
+          }
+        })
+      } catch (error) {
+        console.log(Date() + ': '+ 'createRequest build error! ' + error)
+        reject(error)
+      }
+    })
+    .catch(error => {
+      console.log(Date() + ': Something\'s gone wrong with a promise in createRequest. See details for more info. ' + error)
+      reject(error)
     })
   })
 }
