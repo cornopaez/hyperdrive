@@ -9,6 +9,7 @@ const searchuri = '/api/now/table/kb_knowledge'
 const userUri = '/api/now/table/sys_user'
 const incidentUri = '/api/now/table/incident'
 const sysapprovalUri = '/api/now/table/sysapproval_approver'
+const catalogUri = '/api/now/table/pc_product_cat_item'
 const kburi = `/nav_to.do?uri=%2Fkb_view.do%3Fsys_kb_id%3D`
 const auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
 
@@ -20,7 +21,8 @@ module.exports = {
   getIncidentDetails: getIncidentDetails,
   closeIncident: closeIncident,
   getRequestedApprovalsForUser: getRequestedApprovalsForUser,
-  processReviewForRequest: processReviewForRequest
+  processReviewForRequest: processReviewForRequest,
+  queryProductCatalog: queryProductCatalog
 }
 
 /**
@@ -306,6 +308,41 @@ function processReviewForRequest(request_sys_id, new_state = 'Approved', email_a
             }
           }
       reject(response)
+    })
+  })
+}
+
+/**
+  This function checks for an item in the Product Catalog with a given name. It returns a Promise 
+  that resolves the data returned by SN as a JSON object or provide the error occured.
+
+  @param item_name - The name of the item being sought
+  @return - Promise. Resolves to JSON object response from SN.
+*/
+function queryProductCatalog(item_name) {
+  return new Promise((resolve, reject) => {
+    var options = { 
+      method: 'GET',
+      url: baseurl + catalogUri,
+      qs: { 
+        sysparm_query: 'nameSTARTSWITH' + item_name.toLowerCase(), // STARSWITH can be changed to LIKE for a broader search
+        sysparm_limit: '1' // This can be changed to suite needs in the future
+      },
+      headers: {
+        'Cache-Control': 'no-cache',
+        Authorization: auth 
+      } 
+    }
+
+    request(options, (error, response, body) => {
+      if (!error && response.statusCode == 200) {
+        console.log(Date() + ': '+ 'queryProductCatalog request success!')
+        resolve(JSON.parse(body))
+      } else {
+        console.log(Date() + ': '+ 'queryProductCatalog request error!')
+        // console.log(response)
+        reject(response)
+      }
     })
   })
 }
