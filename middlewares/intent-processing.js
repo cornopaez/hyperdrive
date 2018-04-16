@@ -2,6 +2,7 @@ const search = require('./sn-api.js').search
 const getUserDetails = require('./sn-api.js').getUserDetails
 const getIncidentDetails = require('./sn-api.js').getIncidentDetails
 const closeIncident = require('./sn-api.js').closeIncident
+const getRequestedApprovalsForUser = require('./sn-api.js').getRequestedApprovalsForUser
 
 module.exports = {
 	processIntent: processIntent
@@ -65,6 +66,22 @@ function processIntent(request_body) {
 				})
 				.catch(error => {
 					console.log('close_incident error!')
+					reject(error)
+				})
+				break
+
+			case 'pending_approvals':
+			// 	// Local vars
+			// 	// These are based on a sample call from API.AI
+			// 	var email_address = request_body.result.originalRequest.data.address.from.id // This needs to be discussed as this will not exist in call from api.ai
+
+				getRequestedApprovalsForUser()
+				.then(success => {
+					console.log('pending_approvals success!')
+					resolve(success)
+				})
+				.catch(error => {
+					console.log('pending_approvals error!')
 					reject(error)
 				})
 				break
