@@ -1,8 +1,8 @@
-const search = require('./sn-api.js').search
-const getUserDetails = require('./sn-api.js').getUserDetails
-const getIncidentDetails = require('./sn-api.js').getIncidentDetails
-const closeIncident = require('./sn-api.js').closeIncident
-const getRequestedApprovalsForUser = require('./sn-api.js').getRequestedApprovalsForUser
+const { search, getUserDetails, getIncidentDetails, closeIncident, getRequestedApprovalsForUser, processReviewForRequest } = require('./sn-api.js')
+// const getUserDetails = require('./sn-api.js').getUserDetails
+// const getIncidentDetails = require('./sn-api.js').getIncidentDetails
+// const closeIncident = require('./sn-api.js').closeIncident
+// const getRequestedApprovalsForUser = require('./sn-api.js').getRequestedApprovalsForUser
 
 module.exports = {
 	processIntent: processIntent
@@ -84,6 +84,21 @@ function processIntent(request_body) {
 					console.log('pending_approvals error!')
 					reject(error)
 				})
+				break
+
+			case 'process_request':
+				var new_state // This needs to be populated and passed to function with info from api.ai
+				var request_sys_id // This needs to be populated and passed to function with info from api.ai
+				processReviewForRequest(request_sys_id, new_state)
+				.then(success => {
+					console.log('process_request success!')
+					resolve(success)
+				})
+				.catch(error =>{
+					console.log('process_request success!')
+					resolve(error)
+				})
+
 				break
 
 			default:
