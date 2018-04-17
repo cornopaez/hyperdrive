@@ -9,7 +9,8 @@ const {
     createRequest } = require('./sn-api.js')
 
 const {
-    createKnowledgeBaseResponse } = require('./response-creation.js')
+    createKnowledgeBaseResponse,
+    createRequestConfirmationResponse } = require('./response-creation.js')
 
 module.exports = {
     processIntent: processIntent
@@ -29,17 +30,17 @@ function processIntent(request_body) {
         switch (request_body.result.action) {
 
         case 'search_kb':
-            search(request_body.result.resolvedQuery) //Needs to change when we know where the information is coming from
+            search(request_body.result.resolvedQuery)
                 .then(success => {
-                    console.log(Date() + ' : ProcessIntent - Success fetching data from knowledge base.')
+                    console.log(Date() + ' : ProcessIntent (search_kb) - Success fetching data from knowledge base.')
                     return createKnowledgeBaseResponse(success)
                 })
                 .then(response => {
-                    console.log(Date() + ' : ProcessIntent - Success building response for api.ai.')
+                    console.log(Date() + ' : ProcessIntent (search_kb) - Success building response for api.ai.')
                     resolve(response)
                 })
                 .catch(error => {
-                    console.log(Date() + ': ProcessIntent - Something\'s gone wrong. \n' + JSON.stringify(error))
+                    console.log(Date() + ': ProcessIntent (search_kb) - Something\'s gone wrong. \n' + JSON.stringify(error))
                     reject(error)
                 })
             break
@@ -120,13 +121,19 @@ function processIntent(request_body) {
 
         case 'check_catalog':
             // item_name // This needs to be populated and passed to function with info from api.ai
-            queryProductCatalog('AdoBe')
+            // console.log(request_body)
+            queryProductCatalog(request_body.result.parameters.MALSoftware)
                 .then(success => {
-                    console.log('check_catalog success!')
-                    resolve(success)
+                    console.log(Date() + ' : ProcessIntent (check_catalog) - Success fetching data from Product Catalog.')
+                    // console.log(success)
+                    return createRequestConfirmationResponse(success)
+                })
+                .then(response => {
+                    console.log(Date() + ' : ProcessIntent (check_catalog) - Success building response for api.ai.')
+                    resolve(response)
                 })
                 .catch(error =>{
-                    console.log('check_catalog error!')
+                    console.log(Date() + ': ProcessIntent (check_catalog) - Something\'s gone wrong. \n' + JSON.stringify(error))
                     resolve(error)
                 })
 
