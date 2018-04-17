@@ -54,6 +54,11 @@ function createKnowledgeBaseResponse(kb_data) {
 	})
 }
 
+/**
+	This function creates a response that can be consumed by api.ai (Dialogflow)
+	@param check_catalog_data - This should be the raw data (in JSON format) that comes back from ServiceNow
+	@retun - Promise. Resolves to a response or the raw error data
+*/
 function createRequestConfirmationResponse(check_catalog_data) {
 	return new Promise((resolve, reject) => {
 		try {
