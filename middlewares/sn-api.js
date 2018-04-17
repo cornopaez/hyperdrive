@@ -160,9 +160,10 @@ function createIncident(state, short_description, caller_id) {
 
             request(openOptions, (error, response, body) => {
                 if (!error && response.statusCode == 200) {
+                    console.log(Date() + ': ' + 'Incident creation success' + response.statusCode)
                     resolve(JSON.parse(body))
                 } else {
-                    console.log('request error!')
+                    console.log(Date() + ': ' + 'request error!' + error)
                     // console.log(response)
                     reject(response)
                 }
