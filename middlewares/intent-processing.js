@@ -39,7 +39,7 @@ function processIntent(request_body) {
                     resolve(response)
                 })
                 .catch(error => {
-                    console.log(Date() + ': ProcessIntent - Something\'s gone wrong. \n' + error)
+                    console.log(Date() + ': ProcessIntent - Something\'s gone wrong. \n' + JSON.stringify(error))
                     reject(error)
                 })
             break
