@@ -3,7 +3,33 @@ const {baseurl, kburi} = require('./sn-api.js')
 module.exports = {
 	createKnowledgeBaseResponse: createKnowledgeBaseResponse,
 	createRequestConfirmationResponse: createRequestConfirmationResponse,
-	createRequestCreationResponse: createRequestCreationResponse
+	createRequestCreationResponse: createRequestCreationResponse,
+	createWelcomeResponse: createWelcomeResponse
+}
+
+function createWelcomeResponse(user_data) {
+	return new Promise((resolve, reject) => {
+		try {
+            // console.log(Date() + ': ' + 'Search Result: ' + searchResult.short_description)
+            // console.log(Date() + ': ' + 'Search Result ID: ' + searchResult.sys_id)
+            var result = {
+                'speech': 'Reqeuest Confirmation',
+                'displayText': 'Reqeuest Confirmation',
+                'messages': [
+                    {
+                        'platform': 'skype',
+                        'speech': 'Hi, ' + user_data.result[0].name + '. I am your PNC Assistant. How may I help you?',
+                        'type': 0
+                    }
+                ]
+            }
+            
+            resolve(result)
+	    } catch (error) {
+	        console.log(Date() + ': ' + 'Error generating reply message for api.ai in createWelcomeResponse' + error)
+	        reject(error)
+	    }
+	})
 }
 
 /**

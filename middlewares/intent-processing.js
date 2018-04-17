@@ -11,7 +11,8 @@ const {
 const {
     createKnowledgeBaseResponse,
     createRequestConfirmationResponse,
-    createRequestCreationResponse } = require('./response-creation.js')
+    createRequestCreationResponse,
+    createWelcomeResponse } = require('./response-creation.js')
 
 module.exports = {
     processIntent: processIntent
@@ -30,6 +31,23 @@ function processIntent(request_body) {
 
         switch (request_body.result.action) {
 
+        case 'input.welcome':
+            skype_uid = request_body.originalRequest.data.address.user.id
+
+            getUserDetails(skype_uid)
+            .then(success => {
+                console.log(Date() + ' : ProcessIntent (input.welcome) - Success fetching user data.')
+                return createWelcomeResponse(success)
+            })
+            .then(message => {
+                console.log(Date() + ' : ProcessIntent (input.welcome) - Success building response for api.ai.')
+                resolve(message)
+            })
+            .catch(error => {
+                    console.log(Date() + ': ProcessIntent (input.welcome) - Something\'s gone wrong. \n' + JSON.stringify(error))
+                    reject(error)
+            })
+            break
         case 'search_kb':
             search(request_body.result.resolvedQuery)
                 .then(success => {
