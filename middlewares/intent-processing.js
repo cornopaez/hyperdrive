@@ -10,7 +10,8 @@ const {
 
 const {
     createKnowledgeBaseResponse,
-    createRequestConfirmationResponse } = require('./response-creation.js')
+    createRequestConfirmationResponse,
+    createRequestCreationResponse } = require('./response-creation.js')
 
 module.exports = {
     processIntent: processIntent
@@ -122,7 +123,9 @@ function processIntent(request_body) {
         case 'check_catalog':
             // item_name // This needs to be populated and passed to function with info from api.ai
             // console.log(request_body)
-            queryProductCatalog(request_body.result.parameters.MALSoftware)
+            item_name = request_body.result.parameters.MALSoftware ? request_body.result.parameters.MALSoftware : ''
+
+            queryProductCatalog(item_name)
                 .then(success => {
                     console.log(Date() + ' : ProcessIntent (check_catalog) - Success fetching data from Product Catalog.')
                     // console.log(success)
@@ -142,14 +145,19 @@ function processIntent(request_body) {
         case 'create_request':
             // item_name // This needs to be populated and passed to function with info from api.ai
             skype_uid = request_body.originalRequest.data.address.user.id
+            item_name = request_body.result.parameters.MALSoftware ? request_body.result.parameters.MALSoftware : ''
 
-            createRequest('AdoBe', skype_uid)
+            createRequest(item_name, skype_uid)
                 .then(success => {
-                    console.log('create_request success!')
-                    resolve(success)
+                    console.log(Date() + ' : ProcessIntent (create_request) - Success creating a request.')
+                    return createRequestCreationResponse(success)
+                })
+                .then(message => {
+                    console.log(Date() + ' : ProcessIntent (create_request) - Success building response for api.ai.')
+                    resolve(message)
                 })
                 .catch(error =>{
-                    console.log('create_request error!')
+                    console.log(Date() + ': ProcessIntent (create_request) - Something\'s gone wrong. \n' + JSON.stringify(error))
                     resolve(error)
                 })
             break
