@@ -8,6 +8,9 @@ const {
     queryProductCatalog,
     createRequest } = require('./sn-api.js')
 
+const {
+    createKnowledgeBaseResponse } = require('./response-creation.js')
+
 module.exports = {
     processIntent: processIntent
 }
@@ -26,13 +29,17 @@ function processIntent(request_body) {
         switch (request_body.result.action) {
 
         case 'search_kb':
-            search(request_body.result.action) //Needs to change when we know where the information is coming from
+            search(request_body.result.resolvedQuery) //Needs to change when we know where the information is coming from
                 .then(success => {
-                    console.log('search_kb success!')
-                    resolve(success)
+                    console.log(Date() + ' : ProcessIntent - Success fetching data from knowledge base.')
+                    return createKnowledgeBaseResponse(success)
+                })
+                .then(response => {
+                    console.log(Date() + ' : ProcessIntent - Success building response for api.ai.')
+                    resolve(response)
                 })
                 .catch(error => {
-                    console.log('search_kb error!')
+                    console.log(Date() + ': ProcessIntent - Something\'s gone wrong. \n' + error)
                     reject(error)
                 })
             break
