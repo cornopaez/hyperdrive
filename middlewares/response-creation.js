@@ -90,32 +90,49 @@ function createRequestConfirmationResponse(check_catalog_data) {
 	// console.log(check_catalog_data)
 	return new Promise((resolve, reject) => {
 		try {
-	        for (let searchResult of check_catalog_data.result) {
-	            // console.log(Date() + ': ' + 'Search Result: ' + searchResult.short_description)
-	            // console.log(Date() + ': ' + 'Search Result ID: ' + searchResult.sys_id)
-	            var result = {
+			if (check_catalog_data.result.length === 1) {
+		        for (let searchResult of check_catalog_data.result) {
+		            // console.log(Date() + ': ' + 'Search Result: ' + searchResult.short_description)
+		            // console.log(Date() + ': ' + 'Search Result ID: ' + searchResult.sys_id)
+		            var result = {
+		                'speech': 'Catalog Confirmation',
+		                'displayText': 'Catalog Confirmation',
+		                'messages': [
+		                    {
+		                        'platform': 'skype',
+		                        'speech': 'Sure! I will open a request for you for ' + searchResult.sys_name + '.',
+		                        'type': 0
+		                    },
+		                    {
+		                        'platform': 'skype',
+		                        'replies': [
+		                            'Yes',
+		                            'No'
+		                        ],
+		                        'title': 'Is this absolutely correct?',
+		                        'type': 2
+		                    }
+		                ]
+		            }
+		            
+		            resolve(result)
+		        }
+		    } else {
+		    	var result = {
 	                'speech': 'Catalog Confirmation',
 	                'displayText': 'Catalog Confirmation',
 	                'messages': [
 	                    {
 	                        'platform': 'skype',
-	                        'speech': 'Sure! I will open a request for you for ' + searchResult.sys_name + '.',
+	                        'speech': 'Sorry, that software is not in our Applications List. Might it have a different name?',
 	                        'type': 0
-	                    },
-	                    {
-	                        'platform': 'skype',
-	                        'replies': [
-	                            'Yes',
-	                            'No'
-	                        ],
-	                        'title': 'Is this absolutely correct?',
-	                        'type': 2
 	                    }
 	                ]
 	            }
-	            
-	            resolve(result)
-	        }
+
+		        resolve(result)
+		    }
+		    
 	    } catch (error) {
 	        console.log(Date() + ': ' + 'Error generating reply message for api.ai in createRequestConfirmationResponse' + error)
 	        reject(error)
