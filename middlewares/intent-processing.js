@@ -20,6 +20,8 @@ module.exports = {
 
 function processIntent(request_body) {
 
+    // console.log(request_body)
+
     var skype_uid = ''
     var case_number = ''
     var close_notes = ''
@@ -111,6 +113,7 @@ function processIntent(request_body) {
 
         case 'pending_approvals':
             skype_uid = request_body.originalRequest.data.address.user.id
+
             getRequestedApprovalsForUser(skype_uid)
                 .then(success => {
                     console.log('pending_approvals success!')
@@ -164,7 +167,8 @@ function processIntent(request_body) {
             // item_name // This needs to be populated and passed to function with info from api.ai
             skype_uid = request_body.originalRequest.data.address.user.id
             item_name = request_body.result.parameters.MALSoftware ? request_body.result.parameters.MALSoftware : request_body.result.parameters.Hardware
-            console.log(request_body.result.parameters)
+
+            // console.log(JSON.stringify(request_body))
 
             createRequest(item_name, skype_uid)
                 .then(success => {

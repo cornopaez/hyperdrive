@@ -336,7 +336,7 @@ function queryProductCatalog(item_name) {
                 Authorization: auth
             }
         }
-        console.log(options)
+        // console.log(options)
         request(options, (error, response, body) => {
             if (!error && response.statusCode == 200) {
                 console.log(Date() + ': '+ 'queryProductCatalog request success!')
