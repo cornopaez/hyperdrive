@@ -12,7 +12,8 @@ const {
     createKnowledgeBaseResponse,
     createRequestConfirmationResponse,
     createRequestCreationResponse,
-    createWelcomeResponse } = require('./response-creation.js')
+    createWelcomeResponse,
+    createPendingApprovalsResponse } = require('./response-creation.js')
 
 module.exports = {
     processIntent: processIntent
@@ -116,11 +117,15 @@ function processIntent(request_body) {
 
             getRequestedApprovalsForUser(skype_uid)
                 .then(success => {
-                    console.log('pending_approvals success!')
-                    resolve(success)
+                    console.log(Date() + ' : ProcessIntent (pending_approvals) - Success fetching pending approvals.')
+                    return createPendingApprovalsResponse(success)
+                })
+                .then(message => {
+                    console.log(Date() + ' : ProcessIntent (pending_approvals) - Success building response for api.ai.')
+                    resolve(message)
                 })
                 .catch(error => {
-                    console.log('pending_approvals error!')
+                    console.log(Date() + ': ProcessIntent (pending_approvals) - Something\'s gone wrong. \n' + JSON.stringify(error))
                     reject(error)
                 })
             break

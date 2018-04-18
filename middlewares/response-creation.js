@@ -4,7 +4,8 @@ module.exports = {
 	createKnowledgeBaseResponse: createKnowledgeBaseResponse,
 	createRequestConfirmationResponse: createRequestConfirmationResponse,
 	createRequestCreationResponse: createRequestCreationResponse,
-	createWelcomeResponse: createWelcomeResponse
+	createWelcomeResponse: createWelcomeResponse,
+	createPendingApprovalsResponse: createPendingApprovalsResponse
 }
 
 function createWelcomeResponse(user_data) {
@@ -165,6 +166,36 @@ function createRequestCreationResponse(create_req_data) {
             resolve(result)
 	    } catch (error) {
 	        console.log(Date() + ': ' + 'Error generating reply message for api.ai in createRequestCreationResponse' + error)
+	        reject(error)
+	    }
+	})
+}
+
+/**
+	This function creates a response that can be consumed by api.ai (Dialogflow)
+	@param approval_items_data - This should be the raw data (in JSON format) that comes back from ServiceNow
+	@retun - Promise. Resolves to a response or the raw error data
+*/
+function createPendingApprovalsResponse(approval_items_data) {
+	return new Promise((resolve, reject) => {
+		try {
+            // console.log(Date() + ': ' + 'Search Result: ' + searchResult.short_description)
+            // console.log(Date() + ': ' + 'Search Result ID: ' + searchResult.sys_id)
+            var result = {
+                'speech': 'Pending approvals response',
+                'displayText': 'Pending approvals response',
+                'messages': [
+                    {
+                        'platform': 'skype',
+                        'speech': 'You have ' + approval_items_data.result.length + ' requests to approve. Would you like to review them now?',
+                        'type': 0
+                    }
+                ]
+            }
+            
+            resolve(result)
+	    } catch (error) {
+	        console.log(Date() + ': ' + 'Error generating reply message for api.ai in createPendingApprovalsResponse' + error)
 	        reject(error)
 	    }
 	})
