@@ -89,7 +89,12 @@ function processIntent(request_body) {
             createIncident('open', 'this is a test', 'Pierre Salera')
                 .then(success => {
                     console.log('create incident success!')
-                    resolve(success)
+                    console.log(Date() + ': ' + 'The return from the incident creation looks like this: \n' + JSON.stringify(success.result.number))
+                    var returnString = {
+                        'speech': `Ok. I will open an incident for you on this issue. Your incident number is: ${JSON.stringify(success.result.number)}. A tech will reach out to you shortly.`,
+                        'displayText': `Ok. I will open an incident for you on this issue. Your incident number is: ${JSON.stringify(success.result.number)}. A tech will reach out to you shortly.`
+                    }
+                    resolve(JSON.stringify(returnString))
                 })
                 .catch(error => {
                     console.log('create incident error!')

@@ -147,19 +147,23 @@ function createIncident(state, short_description, caller_id) {
                 },
                 headers: {
                     'Cache-Control': 'no-cache',
+                    Accept: 'application/json',
                     Authorization: auth,
                     'Content-Type': 'application/json'
                 },
-                body: {
-                    short_description: short_description,
-                    state: '1',
-                    caller_id: caller_id,
-                    urgency: '3'
-                }
+                body: JSON.stringify(
+                    {
+                        short_description: short_description,
+                        state: '1',
+                        caller_id: caller_id,
+                        urgency: '3'
+                    }
+                )
             }
 
             request(openOptions, (error, response, body) => {
-                if (!error && response.statusCode == 200) {
+                console.log(Date() + ': ' + 'Body of the request: \n' +JSON.stringify(openOptions))
+                if (!error && response.statusCode == 201) {
                     console.log(Date() + ': ' + 'Incident creation success' + response.statusCode)
                     resolve(JSON.parse(body))
                 } else {
