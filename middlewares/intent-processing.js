@@ -141,7 +141,7 @@ function processIntent(request_body) {
         case 'check_catalog':
             // item_name // This needs to be populated and passed to function with info from api.ai
             // console.log(request_body)
-            item_name = request_body.result.parameters.MALSoftware ? request_body.result.parameters.MALSoftware : ''
+            item_name = request_body.result.parameters.MALSoftware ? request_body.result.parameters.MALSoftware : request_body.result.parameters.Hardware
 
             queryProductCatalog(item_name)
                 .then(success => {
@@ -163,7 +163,8 @@ function processIntent(request_body) {
         case 'create_request':
             // item_name // This needs to be populated and passed to function with info from api.ai
             skype_uid = request_body.originalRequest.data.address.user.id
-            item_name = request_body.result.parameters.MALSoftware ? request_body.result.parameters.MALSoftware : ''
+            item_name = request_body.result.parameters.MALSoftware ? request_body.result.parameters.MALSoftware : request_body.result.parameters.Hardware
+            console.log(request_body.result.parameters)
 
             createRequest(item_name, skype_uid)
                 .then(success => {

@@ -322,11 +322,13 @@ function processReviewForRequest(request_sys_id, skype_uid, new_state = 'Approve
 */
 function queryProductCatalog(item_name) {
     return new Promise((resolve, reject) => {
+        var query_string = item_name.split(' ').map(x => 'nameLIKE' + x.toLowerCase()).join('^')
+
         var options = {
             method: 'GET',
             url: baseurl + catalogUri,
             qs: {
-                sysparm_query: 'nameSTARTSWITH' + item_name.toLowerCase(), // STARSWITH can be changed to LIKE for a broader search
+                sysparm_query: query_string, // STARSWITH can be changed to LIKE for a broader search
                 sysparm_limit: '1' // This can be changed to suite needs in the future
             },
             headers: {
@@ -334,7 +336,7 @@ function queryProductCatalog(item_name) {
                 Authorization: auth
             }
         }
-
+        console.log(options)
         request(options, (error, response, body) => {
             if (!error && response.statusCode == 200) {
                 console.log(Date() + ': '+ 'queryProductCatalog request success!')

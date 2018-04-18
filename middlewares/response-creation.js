@@ -124,7 +124,7 @@ function createRequestConfirmationResponse(check_catalog_data) {
 	                'messages': [
 	                    {
 	                        'platform': 'skype',
-	                        'speech': 'Sorry, that software is not in our Applications List. Might it have a different name?',
+	                        'speech': 'Sorry, that item is not in our Product Catalog. Might it have a different name?',
 	                        'type': 0
 	                    }
 	                ]
@@ -132,7 +132,7 @@ function createRequestConfirmationResponse(check_catalog_data) {
 
 		        resolve(result)
 		    }
-		    
+
 	    } catch (error) {
 	        console.log(Date() + ': ' + 'Error generating reply message for api.ai in createRequestConfirmationResponse' + error)
 	        reject(error)
