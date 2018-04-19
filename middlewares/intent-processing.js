@@ -23,7 +23,7 @@ module.exports = {
 
 function processIntent(request_body) {
 
-    // console.log(request_body)
+    console.log('This sessionId is ' + request_body.sessionId)
 
     var skype_uid = ''
     var case_number = ''
@@ -141,7 +141,6 @@ function processIntent(request_body) {
             getRequestDetails(request_sys_id)
                 .then(success => {
                     return createNextApprovalResponse(success)
-                    // resolve(success)
                 })
                 .then(message => {
                     console.log(Date() + ' : ProcessIntent (initial_load) - Success building response for api.ai.')

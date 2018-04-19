@@ -7,7 +7,7 @@ module.exports = {
 }
 
 function createNewContext(context_data, original_request) {
-	// console.log(original_request.sessionId)
+	// console.log(context_data)
 	return new Promise((resolve, reject) => {
 		try {
 			var new_context_data = JSON.parse(context_data)
@@ -35,6 +35,8 @@ function createNewContext(context_data, original_request) {
 				],
 				json: true 
 			}
+
+			// console.log(JSON.stringify(options))
 
 			request(options, (error, response, body) => {
 	            if (!error && body.status.code == 200) {

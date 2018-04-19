@@ -231,14 +231,13 @@ function getRequestedApprovalsForUser(skype_uid, original_request) {
                         }
                     }
 
-
-                    console.log(options)
                     request(options, (error, response, body) => {
                         if (!error && response.statusCode == 200) {
                             console.log(Date() + ': '+ 'getRequestedApprovalsForUser request success!')
 
                             createNewContext(body, original_request)
                             .then(success => {
+                                console.log(success)
                                 resolve(JSON.parse(body))
                             })
                             .catch(error => {
