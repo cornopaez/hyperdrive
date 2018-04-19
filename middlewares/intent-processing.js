@@ -204,7 +204,7 @@ function processIntent(request_body) {
             skype_uid = request_body.originalRequest.data.address.user.id
             new_state = 'Approved'
             // resolve(request_context)
-            
+
             processReviewForRequest(request_body, current_approval, skype_uid, new_state)
                 .then(success => {
                     console.log('process_request success!')
