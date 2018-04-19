@@ -86,6 +86,7 @@ function processIntent(request_body) {
             break
 
         case 'create_incident':
+            console.log(Date() + ': ' + 'Request Body: \n' +JSON.stringify(request_body))
             createIncident('open', 'this is a test', 'Pierre Salera')
                 .then(success => {
                     console.log('create incident success!')
