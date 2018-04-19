@@ -1,26 +1,27 @@
 const express = require('express')
 const router = express.Router()
-const dotenv = require('dotenv').config() // Disable for eslint
-const processIntent = require('../middlewares/intent-processing.js').processIntent
+const dotenv = require('dotenv').config() // eslint-disable-line 
+const intents = require('../middlewares/intent-processing')
 
 module.exports = router
 
 router.post('/webhook', (req, res) => {
-    // console.log("search requested for " + JSON.stringify(req.body))
-
-    /**
-      The search function is looking for a specific parameter in the data being passed,
-      based on the data passed from API.AI (Webdialog)
-      Adjust accordingly if necessary.
-  */
-    processIntent(req.body)
+    console.log(Date() + ': ' + JSON.stringify(req.body.result.action))
+    intents.processIntent(req.body)
         .then(success => {
-            // console.log(success)
+            console.log(Date() + ': ' + 'Intent Processing finished successfully.')
+            res.setHeader('Content-Type', 'application/json')
             res.send(success)
         })
         .catch(data => {
-            console.log('processIntent error!')
-            res.status(data.statusCode ? data.statusCode : 500).send(data.body ? data.body : 'Fatal error.')
+            console.log(Date() + ': ' + 'Intent Processing Error!\n')
+            console.log(Date() + ': ' + JSON.stringify(data))
+            try {
+                res.status(data.statusCode ? data.statusCode : 500).send(data.body ? data.body : 'Fatal error.')
+            } catch (error) {
+                console.log(Date() + ': ' + 'Intent Processing error in returning status to api.ai\n')
+                console.log(Date() + ': ' + error)
+            }
         })
 })
 

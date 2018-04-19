@@ -1,10 +1,10 @@
 const request = require('request')
 const btoa = require('btoa')
 const argv = require('yargs').argv
+const dotenv = require('dotenv').config() // eslint-disable-line no-unused-vars
 const urlencode = require('urlencode')
 // const baseurl = "https://gpietro3demo.service-now.com"
 const baseurl = 'https://pncmelliniumfalcon.service-now.com'
-const dotenv = require('dotenv').config()
 const searchuri = '/api/now/table/kb_knowledge'
 const userUri = '/api/now/table/sys_user'
 const incidentUri = '/api/now/table/incident'
@@ -20,6 +20,9 @@ module.exports = {
     getUserDetails: getUserDetails,
     getIncidentDetails: getIncidentDetails,
     closeIncident: closeIncident,
+    createIncident: createIncident,
+    baseurl: baseurl,
+    kburi: kburi,
     getRequestedApprovalsForUser: getRequestedApprovalsForUser,
     processReviewForRequest: processReviewForRequest,
     queryProductCatalog: queryProductCatalog,
@@ -36,15 +39,16 @@ module.exports = {
 function search(search_string) {
 
     return new Promise((resolve, reject) =>{
-
-        var search_query = '123TEXTQUERY321=' + urlencode(search_string) // Beginning of string necessary for query to work
-
+        console.log(Date() + ': ' + 'Search String: ' + search_string)
+        var search_query = '123TEXTQUERY321=' + search_string // Beginning of string necessary for query to work
+        console.log(Date() + ': ' + 'Search Query: ' + search_query)
         var options = {
             method: 'GET',
             uri: baseurl + searchuri,
             qs: {
                 sysparm_query: search_query,
-                sysparm_limit: '3',
+                sysparm_limit: '1',
+                sysparm_display_value: true,
                 workflow_state: 'published'
             },
             json: true,
@@ -55,16 +59,11 @@ function search(search_string) {
         }
 
         request(options, (error, response, body) => {
-            var search_results = ''
             if (!error && response.statusCode == 200) {
-                for (let result of body.result) {
-                    var short_description = JSON.stringify(result.short_description)
-                    search_results = search_results + ` ${short_description} \n `+ baseurl + kburi + result.sys_id + '\n'
-                }
+                resolve(body)
             } else {
                 reject(response)
             }
-            resolve(search_results)
         })
     })
 }
@@ -125,7 +124,7 @@ function getIncidentDetails(incident_number) {
             headers: {
                 'Cache-Control': 'no-cache',
                 Accept: 'application/json',
-                'Content-Type': 'application/json' ,
+                'Content-Type': 'application/json',
                 Authorization: auth
             }
         }
@@ -139,6 +138,87 @@ function getIncidentDetails(incident_number) {
                 reject(response)
             }
         })
+    })
+}
+
+function createIncident(state, short_description, caller_id) {
+
+    return new Promise((resolve, reject) => {
+        switch (JSON.parse(state)) {
+        case 'open':
+            var openOptions = {
+                method: 'POST',
+                uri: baseurl + incidentUri,
+                qs: {
+                    sysparm_display_value: true
+                },
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    Accept: 'application/json',
+                    Authorization: auth,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(
+                    {
+                        short_description: JSON.parse(short_description),
+                        state: '1',
+                        caller_id: caller_id,
+                        urgency: '3'
+                    }
+                )
+            }
+
+            request(openOptions, (error, response, body) => {
+                if (!error && response.statusCode == 201) {
+                    console.log(Date() + ': ' + 'Incident creation success' + response.statusCode)
+                    resolve(JSON.parse(body))
+                } else {
+                    console.log(Date() + ': ' + 'request error!' + error)
+                    // console.log(response)
+                    reject(response)
+                }
+            })
+            break
+        case 'closed':
+            var closeOptions = {
+                method: 'POST',
+                uri: baseurl + incidentUri,
+                qs: {
+                    sysparm_display_value: true
+                },
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    Authorization: auth,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(
+                    {
+                        short_description: JSON.parse(short_description),
+                        state: '6',
+                        caller_id: caller_id,
+                        close_notes: 'Resolved by PNC Assistant',
+                        close_code: 'Closed/Resolved by Caller',
+                        closed_at: Date(),
+                        closed_by: caller_id,
+                        urgency: '3'
+                    }
+                )
+            }
+
+            request(closeOptions, (error, response, body) => {
+                if (!error && response.statusCode == 201) {
+                    console.log(Date() + ': ' + 'Incident creation success' + response.statusCode)
+                    console.log(Date() + ': ' +  `Response Body: ${response.body}`)
+                    resolve(JSON.parse(body))
+                } else {
+                    console.log(Date() + ': ' + 'request error!' + error)
+                    reject(response)
+                }
+            })
+            break
+        default:
+            break
+        }
     })
 }
 
@@ -180,7 +260,6 @@ function closeIncident(incident_number, close_notes, close_code = 'Closed/Resolv
                         resolve(body) // This response is already JSON. Parsing it will give an error.
                     } else {
                         console.log('request error!')
-                        // console.log(response)
                         reject(response)
                     }
                 })

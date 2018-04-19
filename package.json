@@ -4,7 +4,7 @@
   "description": "The backend for an application for APIFest",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "snyk test",
     "start": "node server.js"
   },
   "repository": {
@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "eslint": "^4.19.1",
+    "snyk": "^1.71.0"
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.11.0",
     "eslint-plugin-node": "^6.0.1",

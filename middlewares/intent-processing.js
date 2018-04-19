@@ -6,7 +6,12 @@ const {
     getRequestedApprovalsForUser,
     processReviewForRequest,
     queryProductCatalog,
-    createRequest } = require('./sn-api.js')
+    createRequest } = require('./sn-api')
+const incidentUri = '/incident.do?sys_id=' //this is different from the incident uri in the sn-api library this one is for generating the links to actual incidents
+const users = {
+    '29:1xafAd1PSIH3RuvwVq2wqqj4ve53EVEBBe4qP7AXYYeo': 'Womp Rats User',
+    '29:1k74gN7zOhungfGosSKFS0REaJRMuX_-juF_xRdTSodE': 'Womp Rats Manager'
+}
 
 module.exports = {
     processIntent: processIntent
@@ -25,14 +30,61 @@ function processIntent(request_body) {
 
         switch (request_body.result.action) {
 
+        case 'input.welcome':
+            console.log(Date() + ': processing default welcome intent\n')
+            resolve(
+                JSON.stringify({
+                    'speech': `Hello, ${users[request_body.originalRequest.data.address.user.id]}. I am your PNC Assistant. How may I help you?`,
+                    'displayText': `Hello, ${users[request_body.originalRequest.data.address.user.id]}. I am your PNC Assistant. How may I help you?`
+                })
+            )
+            break
+
         case 'search_kb':
-            search(request_body.result.action) //Needs to change when we know where the information is coming from
+            console.log('processing search_kb intent')
+            search(request_body.result.resolvedQuery) //Needs to change when we know where the information is coming from
                 .then(success => {
-                    console.log('search_kb success!')
-                    resolve(success)
+                    console.log(Date() + ': ' + 'search_kb success!' + '\n' + success)
+                    try {
+                        for (let searchResult of success.result) {
+                            console.log(Date() + ': ' + 'Search Result: ' + searchResult.short_description)
+                            console.log(Date() + ': ' + 'Search Result ID: ' + searchResult.sys_id)
+                            var result = {
+                                'speech': 'KB Article',
+                                'displayText': 'KB Article',
+                                'messages': [
+                                    {
+                                        'buttons': [
+                                            {
+                                                'postback': baseurl + kburi + searchResult.sys_id,
+                                                'text': searchResult.short_description
+                                            }
+                                        ],
+                                        'platform': 'skype',
+                                        'subtitle': searchResult.short_description,
+                                        'title': 'KB Article',
+                                        'type': 1
+                                    },
+                                    {
+                                        'platform': 'skype',
+                                        'replies': [
+                                            'Yes',
+                                            'No'
+                                        ],
+                                        'title': 'Did this resolve your issue?',
+                                        'type': 2
+                                    }
+                                ]
+                            }
+                            resolve(result)
+                        }
+                    } catch (error) {
+                        console.log(Date() + ': ' + 'Error generating reply message for api.ai in search_kb' + error)
+                        reject(error)
+                    }
                 })
                 .catch(error => {
-                    console.log('search_kb error!')
+                    console.log(Date() + ': ' + 'search_kb error: '+ error)
                     reject(error)
                 })
             break
@@ -51,6 +103,39 @@ function processIntent(request_body) {
             break
 
         case 'create_incident':
+            //console.log(Date() + ': ' + 'Request Body: \n' +JSON.stringify(request_body))
+            var state = JSON.stringify(request_body.result.parameters.state)
+            var description = JSON.stringify(request_body.result.contexts[1].parameters.any)
+            console.log(Date() + ': ' + 'Creating an Incident in state: ' + state)
+            console.log(Date() + ': ' + 'Incident Short Description: ' + description)
+            createIncident(state, description, 'Pierre Salera')
+                .then(success => {
+                    switch (JSON.parse(state)) {
+                    case 'open':
+                        var openText = `Ok. I will open an incident for you on this issue. Your incident number is: <a href="${baseurl + incidentUri + success.result.sys_id}">${success.result.number}</a>. A tech will reach out to you shortly.`
+                        var openReturnString = {
+                            'speech': openText,
+                            'displayText': openText
+                        }
+                        resolve(JSON.stringify(openReturnString))
+                        break;
+                    case 'closed':
+                        var closedText = `I am glad I was able to provide you with a solution. Should you need to reopen the incident, your incident # is: <a href="${baseurl + incidentUri + success.result.sys_id}">${success.result.number}</a>. Can I help you with anything else?`
+                        var closedReturnString = {
+                            'speech': closedText,
+                            'displayText': closedText
+                        }
+                        resolve(JSON.stringify(closedReturnString))
+                        break;
+                    default:
+                        console.log('blah')
+                    }
+                    console.log('create incident success!')
+                })
+                .catch(error => {
+                    console.log('create incident error!')
+                    reject(error)
+                })
             break
 
         case 'search_incident':
@@ -139,12 +224,15 @@ function processIntent(request_body) {
                     resolve(error)
                 })
             break
+         
+        case 'noaction':
+            console.log(Date() + ': ' + 'No action to perform.')
 
         default:
             var response = {
                 statusCode: 500,
                 body: {
-                    message: 'Error: Unknown Intent Action'
+                    message: 'Error: Unknown Intent Action.'
                 }
             }
             reject(response)
@@ -152,3 +240,4 @@ function processIntent(request_body) {
         }
     })
 }
+
