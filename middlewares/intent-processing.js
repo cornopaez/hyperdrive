@@ -3,6 +3,7 @@ const {
     getUserDetails,
     getIncidentDetails,
     closeIncident,
+    createIncident,
     getRequestedApprovalsForUser,
     processReviewForRequest,
     queryProductCatalog,
@@ -226,10 +227,16 @@ function processIntent(request_body) {
                     resolve(error)
                 })
             break
-         
+
         case 'noaction':
             console.log(Date() + ': ' + 'No action to perform.')
-
+            var closedText
+            var closedReturnString = {
+                'speech': closedText,
+                'displayText': closedText
+            }
+            resolve(JSON.stringify(closedReturnString))
+            break
         default:
             var response = {
                 statusCode: 500,
