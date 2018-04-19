@@ -6,7 +6,9 @@ const {
     getRequestedApprovalsForUser,
     processReviewForRequest,
     queryProductCatalog,
-    createRequest } = require('./sn-api')
+    createRequest,
+    baseurl,
+    kburi } = require('./sn-api')
 const incidentUri = '/incident.do?sys_id=' //this is different from the incident uri in the sn-api library this one is for generating the links to actual incidents
 const users = {
     '29:1xafAd1PSIH3RuvwVq2wqqj4ve53EVEBBe4qP7AXYYeo': 'Womp Rats User',
