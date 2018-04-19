@@ -2,8 +2,8 @@ const request = require('request')
 const dotenv = require('dotenv').config()
 const baseUri = 'https://api.dialogflow.com/v1/contexts'
 
-// const Redis = require('ioredis');
-// const redis = new Redis(process.env.REDIS_URL);
+const Redis = require('ioredis');
+const redis = new Redis(process.env.REDIS_URL);
 
 module.exports = {
 	createNewContext: createNewContext
