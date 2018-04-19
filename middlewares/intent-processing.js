@@ -3,11 +3,14 @@ const {
     getUserDetails,
     getIncidentDetails,
     closeIncident,
+    createIncident,
     getRequestedApprovalsForUser,
     processReviewForRequest,
     queryProductCatalog,
     createRequest,
-    getRequestDetails } = require('./sn-api.js')
+    getRequestDetails,
+    baseurl,
+    kburi } = require('./sn-api.js')
 
 const {
     createKnowledgeBaseResponse,
@@ -16,6 +19,8 @@ const {
     createWelcomeResponse,
     createPendingApprovalsResponse,
     createNextApprovalResponse } = require('./response-creation.js')
+
+const incidentUri = '/incident.do?sys_id=' //this is different from the incident uri in the sn-api library this one is for generating the links to actual incidents
 
 module.exports = {
     processIntent: processIntent
@@ -86,6 +91,44 @@ function processIntent(request_body) {
             break
 
         case 'create_incident':
+            //console.log(Date() + ': ' + 'Request Body: \n' +JSON.stringify(request_body))
+            var state = JSON.stringify(request_body.result.parameters.state)
+            var description = JSON.stringify(request_body.result.contexts[1].parameters.any)
+            console.log(Date() + ': ' + 'Creating an Incident in state: ' + state)
+            console.log(Date() + ': ' + 'Incident Short Description: ' + description)
+
+            getUserDetails(request_body.originalRequest.data.address.user.id)
+                .then(success => {
+                    console.log(JSON.stringify(success))
+                    return createIncident(state, description, success.result[0].name)
+                })
+                .then(success => {
+                    switch (JSON.parse(state)) {
+                    case 'open':
+                        var openText = `Ok. I will open an incident for you on this issue. Your incident number is: <a href="${baseurl + incidentUri + success.result.sys_id}">${success.result.number}</a>. A tech will reach out to you shortly.`
+                        var openReturnString = {
+                            'speech': openText,
+                            'displayText': openText
+                        }
+                        resolve(JSON.stringify(openReturnString))
+                        break;
+                    case 'closed':
+                        var closedText = `I am glad I was able to provide you with a solution. Should you need to reopen the incident, your incident # is: <a href="${baseurl + incidentUri + success.result.sys_id}">${success.result.number}</a>. Can I help you with anything else?`
+                        var closedReturnString = {
+                            'speech': closedText,
+                            'displayText': closedText
+                        }
+                        resolve(JSON.stringify(closedReturnString))
+                        break;
+                    default:
+                        console.log('blah')
+                    }
+                    console.log('create incident success!')
+                })
+                .catch(error => {
+                    console.log('create incident error!')
+                    reject(error)
+                })
             break
 
         case 'search_incident':
@@ -224,11 +267,20 @@ function processIntent(request_body) {
                 })
             break
 
+        case 'noaction':
+            console.log(Date() + ': ' + 'No action to perform.')
+            var closedText
+            var closedReturnString = {
+                'speech': closedText,
+                'displayText': closedText
+            }
+            resolve(JSON.stringify(closedReturnString))
+            break
         default:
             var response = {
                 statusCode: 500,
                 body: {
-                    message: 'Error: Unknown Intent Action'
+                    message: 'Error: Unknown Intent Action.'
                 }
             }
             reject(response)
