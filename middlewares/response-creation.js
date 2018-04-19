@@ -22,7 +22,7 @@ function createWelcomeResponse(user_data) {
                 'messages': [
                     {
                         'platform': 'skype',
-                        'speech': 'Hi, ' + user_data.result[0].name + '. I am your PNC Assistant. How may I help you?',
+                        'speech': 'Hi (wave), ' + user_data.result[0].name + '. I am your PNC Assistant. How may I help you? (computerrage)',
                         'type': 0
                     }
                 ]
@@ -70,7 +70,7 @@ function createKnowledgeBaseResponse(kb_data) {
                                 'Yes',
                                 'No'
                             ],
-                            'title': 'Did this resolve your issue?',
+                            'title': 'Did this resolve your issue? (nerd)',
                             'type': 2
                         }
                     ]
@@ -105,7 +105,7 @@ function createRequestConfirmationResponse(check_catalog_data) {
                         'messages': [
                             {
                                 'platform': 'skype',
-                                'speech': 'Sure! I will open a request for you for ' + searchResult.sys_name + '.',
+                                'speech': '(nod) Sure! I will open a request for you for ' + searchResult.sys_name + '.',
                                 'type': 0
                             },
                             {
@@ -114,7 +114,7 @@ function createRequestConfirmationResponse(check_catalog_data) {
                                     'Yes',
                                     'No'
                                 ],
-                                'title': 'Is this absolutely correct?',
+                                'title': 'Is this correct?',
                                 'type': 2
                             }
                         ]
@@ -161,7 +161,7 @@ function createRequestCreationResponse(create_req_data) {
                 'messages': [
                     {
                         'platform': 'skype',
-                        'speech': 'Fantastic! Your request number is ' + `<a href="${baseurl + reqQueryUri + create_req_data.result.number}">${create_req_data.result.number}</a>` + '.',
+                        'speech': 'Fantastic! (highfive) Your request number is ' + `<a href="${baseurl + reqQueryUri + create_req_data.result.number}">${create_req_data.result.number}</a>` + '.',
                         'type': 0
                     }
                 ]
