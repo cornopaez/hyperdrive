@@ -22,13 +22,16 @@ const {
 
 const incidentUri = '/incident.do?sys_id=' //this is different from the incident uri in the sn-api library this one is for generating the links to actual incidents
 
+const Redis = require('ioredis')
+const redis = new Redis(process.env.REDIS_URL)
+
 module.exports = {
     processIntent: processIntent
 }
 
 function processIntent(request_body) {
 
-    console.log('This sessionId is ' + request_body.sessionId)
+    // console.log('This sessionId is ' + request_body.sessionId)
 
     var skype_uid = ''
     var case_number = ''
@@ -37,7 +40,7 @@ function processIntent(request_body) {
     var request_sys_id = '' // This needs to be populated and passed to function with info from api.ai
     var item_name = ''
     var request_contexts
-    var request_sys_id = ''
+    var request_number = ''
 
     return new Promise((resolve, reject) => {
 
@@ -179,21 +182,25 @@ function processIntent(request_body) {
             break
 
         case 'initial_load':
-
-            request_sys_id = request_body.result.contexts.find(context => context.name === 'node_server_test').parameters.current_approval
-            console.log(request_sys_id)
-            getRequestDetails(request_sys_id)
-                .then(success => {
-                    return createNextApprovalResponse(success)
-                })
-                .then(message => {
-                    console.log(Date() + ' : ProcessIntent (initial_load) - Success building response for api.ai.')
-                    resolve(message)
-                })
-                .catch(error => {
-                    console.log(Date() + ': ProcessIntent (initial_load) - Something\'s gone wrong. \n' + JSON.stringify(error))
-                    reject(error)
-                })
+            redis.get(request_body.sessionId)
+            .then(success =>{
+                current_context = JSON.parse(success)
+                // console.log(current_context)
+                request_number = current_context.current_approval
+                // console.log(request_number)
+                return getRequestDetails(request_number)
+            })
+            .then(success => {
+                return createNextApprovalResponse(success)
+            })
+            .then(message => {
+                console.log(Date() + ' : ProcessIntent (initial_load) - Success building response for api.ai.')
+                resolve(message)
+            })
+            .catch(error => {
+                console.log(Date() + ': ProcessIntent (initial_load) - Something\'s gone wrong. \n' + JSON.stringify(error))
+                reject(error)
+            })
 
             break
 

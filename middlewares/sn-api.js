@@ -512,13 +512,13 @@ function createRequest(item_name, skype_uid, approval_requested = 'Requested') {
     })
 }
 
-function getRequestDetails(request_sys_id) {
+function getRequestDetails(request_number) {
     return new Promise((resolve, reject) => {
         var options = {
             method: 'GET',
             url: baseurl + requestUri,
             qs: {
-                number: request_sys_id,
+                number: request_number,
                 sysparm_limit: '1',
                 sysparm_display_value: true
             },

@@ -190,8 +190,17 @@ function createPendingApprovalsResponse(approval_items_data) {
                 'messages': [
                     {
                         'platform': 'skype',
-                        'speech': 'You have ' + approval_items_data.result.length + ' requests to approve. Would you like to review them now?',
+                        'speech': 'You have ' + approval_items_data.result.length + ' requests to approve.',
                         'type': 0
+                    },
+                    {
+                    	'platform': 'skype',
+                        'replies': [
+                            'Yes',
+                            'No'
+                        ],
+                        'title': 'Would you like to review them now?',
+                        'type': 2
                     }
                 ]
             }
@@ -218,7 +227,7 @@ function createNextApprovalResponse(item_data) {
 
 			var response = name + ' seeks approval for ' + type + ':\n'
 							+ short_description + '\n'
-							+ 'Priority: ' + priority + '\n'
+							+ 'Priority: ' + priority + ' \n'
 							+ '<a href="' + url + '">' + number + '</a>'
 
             var result = {

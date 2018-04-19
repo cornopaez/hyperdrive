@@ -1,9 +1,11 @@
 const request = require('request')
 const dotenv = require('dotenv').config()
 const baseUri = 'https://api.dialogflow.com/v1/contexts'
+const connection = require('./redis-connections.js')
+// const redis = connection.getRedis()
 
-const Redis = require('ioredis');
-const redis = new Redis(process.env.REDIS_URL);
+const Redis = require('ioredis')
+const redis = new Redis(process.env.REDIS_URL)
 
 module.exports = {
 	createNewContext: createNewContext
@@ -13,8 +15,14 @@ function createNewContext(context_data, original_request) {
 	// console.log(context_data)
 	return new Promise((resolve, reject) => {
 		try {
+            var new_context_data = JSON.parse(context_data)
+            var context = {
+                pending_approvals: context_data,
+                current_approval: new_context_data.result[0].sysapproval.display_value,
+                current_position: 0
+            }
 			console.log(original_request.sessionId)
-			redis.set(original_request.sessionId, context_data)
+			redis.set(original_request.sessionId, JSON.stringify(context))
 			resolve('All is well with redis')
 		} catch(error) {
 			reject('All is bad :\'(')
