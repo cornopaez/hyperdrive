@@ -11,6 +11,7 @@ const {
     baseurl,
     kburi } = require('./sn-api')
 const incidentUri = '/incident.do?sys_id=' //this is different from the incident uri in the sn-api library this one is for generating the links to actual incidents
+
 const users = {
     '29:1xafAd1PSIH3RuvwVq2wqqj4ve53EVEBBe4qP7AXYYeo': 'Womp Rats User',
     '29:1k74gN7zOhungfGosSKFS0REaJRMuX_-juF_xRdTSodE': 'Womp Rats Manager'
@@ -108,7 +109,12 @@ function processIntent(request_body) {
             var description = JSON.stringify(request_body.result.contexts[1].parameters.any)
             console.log(Date() + ': ' + 'Creating an Incident in state: ' + state)
             console.log(Date() + ': ' + 'Incident Short Description: ' + description)
-            createIncident(state, description, 'Pierre Salera')
+
+            getUserDetails(request_body.originalRequest.data.address.user.id)
+                .then(success => {
+                    console.log(JSON.stringify(success))
+                    return createIncident(state, description, success.result[0].name)
+                })
                 .then(success => {
                     switch (JSON.parse(state)) {
                     case 'open':
