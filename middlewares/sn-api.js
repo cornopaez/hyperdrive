@@ -2,7 +2,6 @@ const request = require('request')
 const btoa = require('btoa')
 const argv = require('yargs').argv
 const dotenv = require('dotenv').config() // eslint-disable-line no-unused-vars
-const urlencode = require('urlencode')
 // const baseurl = "https://gpietro3demo.service-now.com"
 const baseurl = 'https://pncmelliniumfalcon.service-now.com'
 const searchuri = '/api/now/table/kb_knowledge'
@@ -207,11 +206,10 @@ function createIncident(state, short_description, caller_id) {
 
             request(closeOptions, (error, response, body) => {
                 if (!error && response.statusCode == 201) {
-                    console.log(Date() + ': ' + 'Incident creation success' + response.statusCode)
-                    console.log(Date() + ': ' +  `Response Body: ${response.body}`)
+                    console.log(Date() + ': ' + 'Incident creation success')
                     resolve(JSON.parse(body))
                 } else {
-                    console.log(Date() + ': ' + 'request error!' + error)
+                    console.log(Date() + ': ' + 'request error! \n' + error)
                     reject(response)
                 }
             })

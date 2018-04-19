@@ -25,9 +25,6 @@ function processIntent(request_body) {
     var skype_uid = ''
     var case_number = ''
     var close_notes = ''
-    var new_state = '' // This needs to be populated and passed to function with info from api.ai
-    var request_sys_id = '' // This needs to be populated and passed to function with info from api.ai
-    var item_name = ''
 
     return new Promise((resolve, reject) => {
 
@@ -249,4 +246,3 @@ function processIntent(request_body) {
         }
     })
 }
-
