@@ -6,10 +6,10 @@ const intents = require('../middlewares/intent-processing')
 module.exports = router
 
 router.post('/webhook', (req, res) => {
-    console.log(Date() + ': ' + JSON.stringify(req.body))
+    console.log(Date() + ': ' + JSON.stringify(req.body.result.action))
     intents.processIntent(req.body)
         .then(success => {
-            console.log(Date() + ': ' + 'Intent Processing finishes successfully.')
+            console.log(Date() + ': ' + 'Intent Processing finished successfully.')
             res.setHeader('Content-Type', 'application/json')
             res.send(success)
         })

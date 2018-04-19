@@ -1,4 +1,5 @@
 const {search, getUserDetails, createIncident, getIncidentDetails, closeIncident, kburi, baseurl } = require('./sn-api')
+const incidentUri = '/incident.do?sys_id=' //this is different from the incident uri in the sn-api library this one is for generating the links to actual incidents
 const users = {
     '29:1xafAd1PSIH3RuvwVq2wqqj4ve53EVEBBe4qP7AXYYeo': 'Womp Rats User',
     '29:1k74gN7zOhungfGosSKFS0REaJRMuX_-juF_xRdTSodE': 'Womp Rats Manager'
@@ -86,16 +87,34 @@ function processIntent(request_body) {
             break
 
         case 'create_incident':
-            console.log(Date() + ': ' + 'Request Body: \n' +JSON.stringify(request_body))
-            createIncident('open', 'this is a test', 'Pierre Salera')
+            //console.log(Date() + ': ' + 'Request Body: \n' +JSON.stringify(request_body))
+            var state = JSON.stringify(request_body.result.parameters.state)
+            var description = JSON.stringify(request_body.result.contexts[1].parameters.any)
+            console.log(Date() + ': ' + 'Creating an Incident in state: ' + state)
+            console.log(Date() + ': ' + 'Incident Short Description: ' + description)
+            createIncident(state, description, 'Pierre Salera')
                 .then(success => {
-                    console.log('create incident success!')
-                    console.log(Date() + ': ' + 'The return from the incident creation looks like this: \n' + JSON.stringify(success.result.number))
-                    var returnString = {
-                        'speech': `Ok. I will open an incident for you on this issue. Your incident number is: ${JSON.stringify(success.result.number)}. A tech will reach out to you shortly.`,
-                        'displayText': `Ok. I will open an incident for you on this issue. Your incident number is: ${JSON.stringify(success.result.number)}. A tech will reach out to you shortly.`
+                    switch (JSON.parse(state)) {
+                    case 'open':
+                        var openText = `Ok. I will open an incident for you on this issue. Your incident number is: <a href="${baseurl + incidentUri + success.result.sys_id}">${success.result.number}</a>. A tech will reach out to you shortly.`
+                        var openReturnString = {
+                            'speech': openText,
+                            'displayText': openText
+                        }
+                        resolve(JSON.stringify(openReturnString))
+                        break;
+                    case 'closed':
+                        var closedText = `I am glad I was able to provide you with a solution. Should you need to reopen the incident, your incident # is: <a href="${baseurl + incidentUri + success.result.sys_id}">${success.result.number}</a>. Can I help you with anything else?`
+                        var closedReturnString = {
+                            'speech': closedText,
+                            'displayText': closedText
+                        }
+                        resolve(JSON.stringify(closedReturnString))
+                        break;
+                    default:
+                        console.log('blah')
                     }
-                    resolve(JSON.stringify(returnString))
+                    console.log('create incident success!')
                 })
                 .catch(error => {
                     console.log('create incident error!')
@@ -123,13 +142,17 @@ function processIntent(request_body) {
 
             closeIncident(case_number, close_notes)
                 .then(success => {
-                    console.log('close_incident success!')
+                    console.log(Date() + ': ' + 'close_incident success!')
                     resolve(success)
                 })
                 .catch(error => {
-                    console.log('close_incident error!')
+                    console.log(Date() + ': ' + 'close_incident error!')
                     reject(error)
                 })
+            break
+
+        case 'noaction':
+            console.log(Date() + ': ' + 'No action to perform.')
             break
 
         default:

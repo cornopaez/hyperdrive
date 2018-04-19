@@ -137,7 +137,7 @@ function getIncidentDetails(incident_number) {
 function createIncident(state, short_description, caller_id) {
 
     return new Promise((resolve, reject) => {
-        switch (state) {
+        switch (JSON.parse(state)) {
         case 'open':
             var openOptions = {
                 method: 'POST',
@@ -153,7 +153,7 @@ function createIncident(state, short_description, caller_id) {
                 },
                 body: JSON.stringify(
                     {
-                        short_description: short_description,
+                        short_description: JSON.parse(short_description),
                         state: '1',
                         caller_id: caller_id,
                         urgency: '3'
@@ -162,7 +162,6 @@ function createIncident(state, short_description, caller_id) {
             }
 
             request(openOptions, (error, response, body) => {
-                console.log(Date() + ': ' + 'Body of the request: \n' +JSON.stringify(openOptions))
                 if (!error && response.statusCode == 201) {
                     console.log(Date() + ': ' + 'Incident creation success' + response.statusCode)
                     resolve(JSON.parse(body))
@@ -185,23 +184,27 @@ function createIncident(state, short_description, caller_id) {
                     Authorization: auth,
                     'Content-Type': 'application/json'
                 },
-                body: {
-                    short_description: short_description,
-                    state: '3',
-                    caller_id: caller_id,
-                    close_notes: 'Resolved by PNC Assistant',
-                    close_code: 'Closed/Resolved by Caller',
-                    closed_at: Date(),
-                    closed_by: caller_id,
-                    urgency: '3'
-                }
+                body: JSON.stringify(
+                    {
+                        short_description: JSON.parse(short_description),
+                        state: '6',
+                        caller_id: caller_id,
+                        close_notes: 'Resolved by PNC Assistant',
+                        close_code: 'Closed/Resolved by Caller',
+                        closed_at: Date(),
+                        closed_by: caller_id,
+                        urgency: '3'
+                    }
+                )
             }
 
             request(closeOptions, (error, response, body) => {
-                if (!error && response.statusCode == 200) {
+                if (!error && response.statusCode == 201) {
+                    console.log(Date() + ': ' + 'Incident creation success' + response.statusCode)
+                    console.log(Date() + ': ' +  `Response Body: ${response.body}`)
                     resolve(JSON.parse(body))
                 } else {
-                    console.log('request error!')
+                    console.log(Date() + ': ' + 'request error!' + error)
                     reject(response)
                 }
             })
