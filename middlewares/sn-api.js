@@ -8,10 +8,15 @@ const dotenv = require('dotenv').config()
 const searchuri = '/api/now/table/kb_knowledge'
 const userUri = '/api/now/table/sys_user'
 const incidentUri = '/api/now/table/incident'
+const requestUri = '/api/now/table/sc_request'
 const sysapprovalUri = '/api/now/table/sysapproval_approver'
 const catalogUri = '/api/now/table/pc_product_cat_item'
 const kburi = '/nav_to.do?uri=%2Fkb_view.do%3Fsys_kb_id%3D'
 const auth = 'Basic ' + btoa(`${argv.username||process.env.username}`+':'+`${argv.password||process.env.password}`)
+
+const {
+    createNewContext,
+    modifyCurrentContext } = require('./dialogflow-api.js')
 
 // module.exports.search = search
 // module.exports.getUserDetails = getUserDetails
@@ -25,7 +30,8 @@ module.exports = {
     queryProductCatalog: queryProductCatalog,
     createRequest: createRequest,
     kburi: kburi,
-    baseurl: baseurl
+    baseurl: baseurl,
+    getRequestDetails: getRequestDetails
 }
 
 /**
@@ -205,7 +211,7 @@ function closeIncident(incident_number, close_notes, close_code = 'Closed/Resolv
 	@param email_address - The email address of the user. The default is someone who currently has approvals pending.
 	@return - Promise. Resolves to JSON object response from SN.
 */
-function getRequestedApprovalsForUser(skype_uid) {
+function getRequestedApprovalsForUser(skype_uid, original_request) {
     return new Promise((resolve, reject) => {
         getUserDetails(skype_uid)
             .then(success => {
@@ -217,7 +223,7 @@ function getRequestedApprovalsForUser(skype_uid) {
                         qs: {
                             sysparm_query: 'approver.nameSTARTSWITH' + success.result[0].name + '^stateINrequested',
                             sysparm_display_value: 'true',
-                            sysparam_limit: '5'
+                            sysparm_limit: '5'
                         },
                         headers: {
                             'Cache-Control': 'no-cache',
@@ -225,10 +231,19 @@ function getRequestedApprovalsForUser(skype_uid) {
                         }
                     }
 
+
+                    console.log(options)
                     request(options, (error, response, body) => {
                         if (!error && response.statusCode == 200) {
                             console.log(Date() + ': '+ 'getRequestedApprovalsForUser request success!')
-                            resolve(JSON.parse(body))
+
+                            createNewContext(body, original_request)
+                            .then(success => {
+                                resolve(JSON.parse(body))
+                            })
+                            .catch(error => {
+                                reject(error)
+                            })
                         } else {
                             console.log(Date() + ': '+ 'getRequestedApprovalsForUser request error!')
                             // console.log(response)
@@ -263,7 +278,7 @@ function getRequestedApprovalsForUser(skype_uid) {
 	@param email_address - The email for the user processing the review
 	@return - Promise. Resolves to JSON object response from SN.
 */
-function processReviewForRequest(request_sys_id, skype_uid, new_state = 'Approved') {
+function processReviewForRequest(original_request, request_sys_id, skype_uid, new_state = 'Approved') {
     return new Promise((resolve, reject) => {
         getUserDetails(skype_uid)
             .then(success => {
@@ -286,7 +301,15 @@ function processReviewForRequest(request_sys_id, skype_uid, new_state = 'Approve
                     request(options, (error, response, body) => {
                         if (!error && response.statusCode == 200) {
                             console.log(Date() + ': '+ 'processReviewForRequest request success!')
-                            resolve(body)
+
+                            modifyCurrentContext(original_request)
+                            .then(success => {
+                                resolve(body)
+                            })
+                            .catch(error => {
+                                reject(error)
+                            })
+
                         } else {
                             console.log(Date() + ': '+ 'processReviewForRequest request error!')
                             // console.log(response)
@@ -408,5 +431,35 @@ function createRequest(item_name, skype_uid, approval_requested = 'Requested') {
                 console.log(Date() + ': Something\'s gone wrong with a promise in createRequest. See details for more info. ' + error)
                 reject(error)
             })
+    })
+}
+
+function getRequestDetails(request_sys_id) {
+    return new Promise((resolve, reject) => {
+        var options = {
+            method: 'GET',
+            url: baseurl + requestUri,
+            qs: {
+                number: request_sys_id,
+                sysparm_limit: '1',
+                sysparm_display_value: true
+            },
+            headers: {
+                'Cache-Control': 'no-cache',
+                Accept: 'application/json',
+                'Content-Type': 'application/json' ,
+                Authorization: auth
+            }
+        }
+
+        request(options, (error, response, body) => {
+            if (!error && response.statusCode == 200) {
+                resolve(JSON.parse(body))
+            } else {
+                console.log('request error!')
+                // console.log(response)
+                reject(response)
+            }
+        })
     })
 }

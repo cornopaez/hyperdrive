@@ -1,11 +1,13 @@
 const {baseurl, kburi} = require('./sn-api.js')
+const reqQueryUri = 'nav_to.do?uri=sc_request.do?sys_id='
 
 module.exports = {
 	createKnowledgeBaseResponse: createKnowledgeBaseResponse,
 	createRequestConfirmationResponse: createRequestConfirmationResponse,
 	createRequestCreationResponse: createRequestCreationResponse,
 	createWelcomeResponse: createWelcomeResponse,
-	createPendingApprovalsResponse: createPendingApprovalsResponse
+	createPendingApprovalsResponse: createPendingApprovalsResponse,
+	createNextApprovalResponse: createNextApprovalResponse
 }
 
 function createWelcomeResponse(user_data) {
@@ -177,6 +179,7 @@ function createRequestCreationResponse(create_req_data) {
 	@retun - Promise. Resolves to a response or the raw error data
 */
 function createPendingApprovalsResponse(approval_items_data) {
+	// console.log(approval_items_data)
 	return new Promise((resolve, reject) => {
 		try {
             // console.log(Date() + ': ' + 'Search Result: ' + searchResult.short_description)
@@ -189,6 +192,53 @@ function createPendingApprovalsResponse(approval_items_data) {
                         'platform': 'skype',
                         'speech': 'You have ' + approval_items_data.result.length + ' requests to approve. Would you like to review them now?',
                         'type': 0
+                    }
+                ]
+            }
+            
+            resolve(result)
+	    } catch (error) {
+	        console.log(Date() + ': ' + 'Error generating reply message for api.ai in createPendingApprovalsResponse' + error)
+	        reject(error)
+	    }
+	})
+}
+
+function createNextApprovalResponse(item_data) {
+	return new Promise((resolve, reject) => {
+		try {
+			// console.log(item_data.result)
+			var name = item_data.result[0].opened_by.display_value
+			var type = item_data.result[0].sys_class_name
+			var short_description = item_data.result[0].short_description
+			var priority = item_data.result[0].priority
+			var number = item_data.result[0].number
+			var sys_id = item_data.result[0].sys_id
+			var url = baseurl + reqQueryUri + sys_id
+
+			var response = name + ' seeks approval for ' + type + ':\n'
+							+ short_description + '\n'
+							+ 'Priority: ' + priority + '\n'
+							+ '<a href="' + url + '">' + number + '</a>'
+
+            var result = {
+                'speech': 'Processing approvals response',
+                'displayText': 'Processing approvals response',
+                'messages': [
+                    {
+                        'platform': 'skype',
+                        'speech': response,
+                        'type': 0
+                    },
+                    {
+                    	'platform': 'skype',
+                        'replies': [
+                            'Approve',
+                            'Reject',
+                            'Skip'
+                        ],
+                        'title': 'Do you approve?',
+                        'type': 2
                     }
                 ]
             }
