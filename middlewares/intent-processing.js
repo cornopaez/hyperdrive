@@ -55,6 +55,7 @@ function processIntent(request_body) {
                     reject(error)
             })
             break
+            
         case 'search_kb':
             search(request_body.result.resolvedQuery)
                 .then(success => {
