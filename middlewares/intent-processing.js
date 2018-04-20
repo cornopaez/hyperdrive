@@ -185,9 +185,7 @@ function processIntent(request_body) {
             redis.get(request_body.sessionId)
             .then(success =>{
                 current_context = JSON.parse(success)
-                // console.log(current_context)
-                request_number = current_context.current_approval
-                // console.log(request_number)
+                request_number = current_context.current_approval_number
                 return getRequestDetails(request_number)
             })
             .then(success => {
@@ -205,22 +203,40 @@ function processIntent(request_body) {
             break
 
         case 'process_request_approve':
-            // new_state // This needs to be populated and passed to function with info from api.ai
-            // request_sys_id // This needs to be populated and passed to function with info from api.ai
-            current_approval = request_body.result.contexts.find(context => context.name === 'node_server_test').parameters.current_approval
-            skype_uid = request_body.originalRequest.data.address.user.id
-            new_state = 'Approved'
-            // resolve(request_context)
-            
-            processReviewForRequest(request_body, current_approval, skype_uid, new_state)
-                .then(success => {
-                    console.log('process_request success!')
-                    resolve(success)
-                })
-                .catch(error =>{
-                    console.log('process_request error!')
-                    resolve(error)
-                })
+            redis.get(request_body.sessionId)
+            .then(success => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Starting the approval process.')
+                current_context = JSON.parse(success)
+                request_sys_id = current_context.current_approval_table_sys_id
+                skype_uid = request_body.originalRequest.data.address.user.id
+                new_state = 'Approved'
+
+                return processReviewForRequest(request_body, request_sys_id, skype_uid, new_state)
+            })
+            .then(success => {
+                console.log(Date() + ':ProcessIntent (process_request_approve) -  Approval process complete.')
+                return redis.get(request_body.sessionId)
+            })
+            .then(success => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Getting case details.')
+                current_context = JSON.parse(success)
+                // console.log(typeof current_context)
+                request_number = current_context.current_approval_number
+                // console.log(request_number)
+                return getRequestDetails(request_number)
+            })
+            .then(success => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Creating response.')
+                return createNextApprovalResponse(success)
+            })
+            .then(message => {
+                console.log(Date() + ' : ProcessIntent (process_request_approve) - Success building response for api.ai.')
+                resolve(message)
+            })
+            .catch(error => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Something\'s gone wrong. \n' + JSON.stringify(error))
+                reject(error)
+            })
 
             break
 

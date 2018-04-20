@@ -17,6 +17,9 @@ const {
     createNewContext,
     modifyCurrentContext } = require('./dialogflow-api.js')
 
+const Redis = require('ioredis')
+const redis = new Redis(process.env.REDIS_URL)
+
 // module.exports.search = search
 // module.exports.getUserDetails = getUserDetails
 module.exports = {
@@ -301,7 +304,6 @@ function getRequestedApprovalsForUser(skype_uid, original_request) {
                         url: baseurl + sysapprovalUri,
                         qs: {
                             sysparm_query: 'approver.nameSTARTSWITH' + success.result[0].name + '^stateINrequested',
-                            sysparm_display_value: 'true',
                             sysparm_limit: '5'
                         },
                         headers: {
@@ -376,15 +378,23 @@ function processReviewForRequest(original_request, request_sys_id, skype_uid, ne
                         json: true
                     }
 
+                    // console.log(options)
+
                     request(options, (error, response, body) => {
                         if (!error && response.statusCode == 200) {
                             console.log(Date() + ': '+ 'processReviewForRequest request success!')
 
-                            modifyCurrentContext(original_request)
+                            redis.get(original_request.sessionId)
                             .then(success => {
+                                // console.log(success)
+                                return modifyCurrentContext(success, original_request)
+                            })
+                            .then(success => {
+                                console.log('modifyCurrentContext success')
                                 resolve(body)
                             })
                             .catch(error => {
+                                console.log('modifyCurrentContext error')
                                 reject(error)
                             })
 
@@ -512,13 +522,13 @@ function createRequest(item_name, skype_uid, approval_requested = 'Requested') {
     })
 }
 
-function getRequestDetails(request_number) {
+function getRequestDetails(request_sys_id) {
     return new Promise((resolve, reject) => {
         var options = {
             method: 'GET',
             url: baseurl + requestUri,
             qs: {
-                number: request_number,
+                sys_id: request_sys_id,
                 sysparm_limit: '1',
                 sysparm_display_value: true
             },
