@@ -241,6 +241,42 @@ function processIntent(request_body) {
             break
 
         case 'process_request_reject':
+
+            redis.get(request_body.sessionId)
+            .then(success => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Starting the approval process.')
+                current_context = JSON.parse(success)
+                request_sys_id = current_context.current_approval_table_sys_id
+                skype_uid = request_body.originalRequest.data.address.user.id
+                new_state = 'Rejected'
+
+                return processReviewForRequest(request_body, request_sys_id, skype_uid, new_state)
+            })
+            .then(success => {
+                console.log(Date() + ':ProcessIntent (process_request_approve) -  Approval process complete.')
+                return redis.get(request_body.sessionId)
+            })
+            .then(success => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Getting case details.')
+                current_context = JSON.parse(success)
+                // console.log(typeof current_context)
+                request_number = current_context.current_approval_number
+                // console.log(request_number)
+                return getRequestDetails(request_number)
+            })
+            .then(success => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Creating response.')
+                return createNextApprovalResponse(success)
+            })
+            .then(message => {
+                console.log(Date() + ' : ProcessIntent (process_request_approve) - Success building response for api.ai.')
+                resolve(message)
+            })
+            .catch(error => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Something\'s gone wrong. \n' + JSON.stringify(error))
+                reject(error)
+            })
+
             break
 
         case 'process_request_skip':
