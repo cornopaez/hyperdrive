@@ -1,5 +1,5 @@
 const {baseurl, kburi} = require('./sn-api.js')
-const reqQueryUri = '/nav_to.do?uri=sc_request.do?sys_id='
+const reqQueryUri = '/nav_to.do?uri=%2Fsc_request.do%3Fsys_id%3D'
 
 
 module.exports = {
