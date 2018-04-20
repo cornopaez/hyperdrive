@@ -22,7 +22,7 @@ function createWelcomeResponse(user_data) {
                 'messages': [
                     {
                         'platform': 'skype',
-                        'speech': 'Hi (wave), ' + user_data.result[0].name + '. I am your PNC Assistant. How may I help you? (computerrage)',
+                        'speech': `Hi (wave), ${user_data.result[0].name}. I am your PNC Assistant. I can find technology solutions, open requests, and manage approvals. Type 'help' for examples. How may I assist you?`,
                         'type': 0
                     }
                 ]
@@ -49,14 +49,14 @@ function createKnowledgeBaseResponse(kb_data) {
                 // console.log(Date() + ': ' + 'Search Result: ' + searchResult.short_description)
                 // console.log(Date() + ': ' + 'Search Result ID: ' + searchResult.sys_id)
                 var result = {
-                    'speech': 'KB Article',
-                    'displayText': 'KB Article',
+                    'speech': 'Knowledge Base Article',
+                    'displayText': 'Knowledge Base Article',
                     'messages': [
                         {
                             'buttons': [
                                 {
                                     'postback': baseurl + kburi + searchResult.sys_id,
-                                    'text': searchResult.short_description
+                                    'text': 'Click here to view'
                                 }
                             ],
                             'platform': 'skype',
@@ -216,21 +216,21 @@ function createPendingApprovalsResponse(approval_items_data) {
 }
 
 function createNextApprovalResponse(item_data) {
-	return new Promise((resolve, reject) => {
-		try {
-			// console.log(item_data.result)
-			var name = item_data.result[0].opened_by.display_value
-			var type = item_data.result[0].sys_class_name
-			var short_description = item_data.result[0].short_description
-			var priority = item_data.result[0].priority
-			var number = item_data.result[0].number
-			var sys_id = item_data.result[0].sys_id
-			var url = baseurl + reqQueryUri + sys_id
+    return new Promise((resolve, reject) => {
+        try {
+            // console.log(item_data.result)
+            var name = item_data.result[0].opened_by.display_value
+            var type = item_data.result[0].sys_class_name
+            var short_description = item_data.result[0].short_description
+            var priority = item_data.result[0].priority
+            var number = item_data.result[0].number
+            var sys_id = item_data.result[0].sys_id
+            var url = baseurl + reqQueryUri + sys_id
 
-			var response = name + ' seeks approval for ' + type + ':\n'
-							+ short_description + '\n'
-							+ 'Priority: ' + priority + ' \n'
-							+ '<a href="' + url + '">' + number + '</a>'
+            var response = name + ' seeks approval for ' + type + ':\n'
+                            + short_description + '\n'
+                            + 'Priority: ' + priority + ' \n'
+                            + '<a href="' + url + '">' + number + '</a>'
             var result = {
                 'speech': 'Processing approvals response',
                 'displayText': 'Processing approvals response',
