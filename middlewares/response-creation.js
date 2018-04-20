@@ -61,7 +61,7 @@ function createKnowledgeBaseResponse(kb_data) {
                             ],
                             'platform': 'skype',
                             'subtitle': searchResult.short_description,
-                            'title': 'KB Article',
+                            'title': 'Knowledge Base Article',
                             'type': 1
                         },
                         {
