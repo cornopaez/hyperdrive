@@ -369,6 +369,16 @@ function processIntent(request_body) {
             }
             resolve(JSON.stringify(closedReturnString))
             break
+
+        case 'meme':
+            console.log(Date() + ': ' + 'No action to perform.')
+            var memeText = '<a href="https://i.pinimg.com/originals/53/bb/3f/53bb3f41d1fb17aa28b506c6b03980bd.jpg">IT Crowd</a>'
+            var memeTextReturn = {
+                'speech': memeText,
+                'displayText': memeText
+            }
+            resolve(JSON.stringify(memeTextReturn))
+            break
         default:
             var response = {
                 statusCode: 500,
