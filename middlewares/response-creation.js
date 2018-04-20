@@ -1,5 +1,5 @@
 const {baseurl, kburi} = require('./sn-api.js')
-const reqQueryUri = 'nav_to.do?uri=sc_request.do?sys_id='
+const reqQueryUri = '/nav_to.do?uri=sc_request.do?sys_id='
 
 
 module.exports = {
@@ -196,7 +196,7 @@ function createPendingApprovalsResponse(approval_items_data) {
                         'type': 0
                     },
                     {
-                    	'platform': 'skype',
+                        'platform': 'skype',
                         'replies': [
                             'Yes',
                             'No'
