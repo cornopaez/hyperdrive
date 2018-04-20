@@ -1,14 +1,12 @@
-const request = require('request')
-const dotenv = require('dotenv').config()
-const baseUri = 'https://api.dialogflow.com/v1/contexts'
-const connection = require('./redis-connections.js')
-// const redis = connection.getRedis()
+const request = require('request') // eslint-disable-line
+const dotenv = require('dotenv').config() // eslint-disable-line
+const baseUri = 'https://api.dialogflow.com/v1/contexts' // eslint-disable-line
 
-const Redis = require('ioredis')
-const redis = new Redis(process.env.REDIS_URL)
+const Redis = require('ioredis');
+const redis = new Redis(process.env.REDIS_URL);
 
 module.exports = {
-	createNewContext: createNewContext
+    createNewContext: createNewContext
 }
 
 function createNewContext(context_data, original_request) {
@@ -30,50 +28,50 @@ function createNewContext(context_data, original_request) {
 	})
 }
 
-function modifyCurrentContext(original_request) {
-	// console.log(original_request.sessionId)
-	return new Promise((resolve, reject) => {
-		try {
-			var new_context_data = request_body.result.contexts.find(context => context.name === 'node_server_test')
-			var new_array_position = new_context_data.current_position + 1
-			var options = { 
-				method: 'POST',
-				url: 'https://api.dialogflow.com/v1/contexts',
-				qs: { 
-					sessionId: original_request.sessionId 
-				},
-				headers: {
-				 'Cache-Control': 'no-cache',
-				 'Content-Type': 'application/json',
-				 Authorization: 'Bearer ' + process.env.apiaitoken
-				},
-				body:[ 
-					{ 
-						lifespan: new_context_data.result.length - 1,
-				   		name: 'node_server_test',
-				   		parameters: {
-				   			pending_approvals: new_context_data,
-				   			current_approval: new_context_data.result[new_array_position].sys_id,
-				   			current_position: new_array_position
-				   		}
-				   	} 
-				],
-				json: true 
-			}
-
-			request(options, (error, response, body) => {
-	            if (!error && body.status.code == 200) {
-	                console.log(Date() + ': '+ 'modifyCurrentContext request success! \n ')
-	                resolve(body)
-	            } else {
-	                console.log(Date() + ': '+ 'modifyCurrentContext request error! \n ' + response)
-	                // console.log(response)
-	                reject(response)
-	            }
-	        })
-	    } catch (error) {
-	    	console.log(Date() + ': '+ 'modifyCurrentContext build error! ' + error)
-            reject(error)
-	    }
-	})
-}
+// function modifyCurrentContext(original_request) {
+//     // console.log(original_request.sessionId)
+//     return new Promise((resolve, reject) => {
+//         try {
+//             var new_context_data = request_body.result.contexts.find(context => context.name === 'node_server_test')
+//             var new_array_position = new_context_data.current_position + 1
+//             var options = {
+//                 method: 'POST',
+//                 url: 'https://api.dialogflow.com/v1/contexts',
+//                 qs: {
+//                     sessionId: original_request.sessionId
+//                 },
+//                 headers: {
+//                  'Cache-Control': 'no-cache',
+//                  'Content-Type': 'application/json',
+//                  Authorization: 'Bearer ' + process.env.apiaitoken
+//                 },
+//                 body:[
+//                     {
+//                         lifespan: new_context_data.result.length - 1,
+//                            name: 'node_server_test',
+//                            parameters: {
+//                                pending_approvals: new_context_data,
+//                                current_approval: new_context_data.result[new_array_position].sys_id,
+//                                current_position: new_array_position
+//                            }
+//                        }
+//                 ],
+//                 json: true
+//             }
+//
+//             request(options, (error, response, body) => {
+//                 if (!error && body.status.code == 200) {
+//                     console.log(Date() + ': '+ 'modifyCurrentContext request success! \n ')
+//                     resolve(body)
+//                 } else {
+//                     console.log(Date() + ': '+ 'modifyCurrentContext request error! \n ' + response)
+//                     // console.log(response)
+//                     reject(response)
+//                 }
+//             })
+//         } catch (error) {
+//             console.log(Date() + ': '+ 'modifyCurrentContext build error! ' + error)
+//             reject(error)
+//         }
+//     })
+// }
