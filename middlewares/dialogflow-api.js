@@ -1,7 +1,7 @@
-const request = require('request')
-const dotenv = require('dotenv').config()
-const baseUri = 'https://api.dialogflow.com/v1/contexts'
-// const redis = connection.getRedis()
+const request = require('request') // eslint-disable-line
+const dotenv = require('dotenv').config() // eslint-disable-line
+const baseUri = 'https://api.dialogflow.com/v1/contexts' // eslint-disable-line
+
 
 const Redis = require('ioredis');
 const redis = new Redis(process.env.REDIS_URL);
