@@ -247,11 +247,16 @@ function processIntent(request_body) {
 
             redis.get(request_body.sessionId)
             .then(success => {
-                console.log(Date() + ': ProcessIntent (process_request_approve) - Starting the skip process.')
-                return modifyCurrentContext(success, request_body)
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Starting the approval process.')
+                current_context = JSON.parse(success)
+                request_sys_id = current_context.current_approval_table_sys_id
+                skype_uid = request_body.originalRequest.data.address.user.id
+                new_state = 'Rejected'
+
+                return processReviewForRequest(request_body, request_sys_id, skype_uid, new_state)
             })
             .then(success => {
-                console.log(Date() + ':ProcessIntent (process_request_approve) -  Skip process complete.')
+                console.log(Date() + ':ProcessIntent (process_request_approve) -  Approval process complete.')
                 return redis.get(request_body.sessionId)
             })
             .then(success => {
@@ -281,16 +286,11 @@ function processIntent(request_body) {
 
             redis.get(request_body.sessionId)
             .then(success => {
-                console.log(Date() + ': ProcessIntent (process_request_approve) - Starting the approval process.')
-                current_context = JSON.parse(success)
-                request_sys_id = current_context.current_approval_table_sys_id
-                skype_uid = request_body.originalRequest.data.address.user.id
-                new_state = 'Rejected'
-
-                return processReviewForRequest(request_body, request_sys_id, skype_uid, new_state)
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Starting the skip process.')
+                return modifyCurrentContext(success, request_body)
             })
             .then(success => {
-                console.log(Date() + ':ProcessIntent (process_request_approve) -  Approval process complete.')
+                console.log(Date() + ':ProcessIntent (process_request_approve) -  Skip process complete.')
                 return redis.get(request_body.sessionId)
             })
             .then(success => {
