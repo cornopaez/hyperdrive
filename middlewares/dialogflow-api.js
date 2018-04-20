@@ -10,16 +10,22 @@ module.exports = {
 }
 
 function createNewContext(context_data, original_request) {
-    // console.log(context_data)
-    return new Promise((resolve, reject) => {
-        try {
-            console.log(original_request.sessionId)
-            redis.set(original_request.sessionId, context_data)
-            resolve('All is well with redis')
-        } catch(error) {
-            reject('All is bad :\'(')
-        }
-    })
+	// console.log(context_data)
+	return new Promise((resolve, reject) => {
+		try {
+            var new_context_data = JSON.parse(context_data)
+            var context = {
+                pending_approvals: context_data,
+                current_approval: new_context_data.result[0].sysapproval.display_value,
+                current_position: 0
+            }
+			console.log(original_request.sessionId)
+			redis.set(original_request.sessionId, JSON.stringify(context))
+			resolve('All is well with redis')
+		} catch(error) {
+			reject('All is bad :\'(')
+		}
+	})
 }
 
 // function modifyCurrentContext(original_request) {

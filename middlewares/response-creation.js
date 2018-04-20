@@ -192,8 +192,17 @@ function createPendingApprovalsResponse(approval_items_data) {
                 'messages': [
                     {
                         'platform': 'skype',
-                        'speech': 'You have ' + approval_items_data.result.length + ' requests to approve. Would you like to review them now?',
+                        'speech': 'You have ' + approval_items_data.result.length + ' requests to approve.',
                         'type': 0
+                    },
+                    {
+                    	'platform': 'skype',
+                        'replies': [
+                            'Yes',
+                            'No'
+                        ],
+                        'title': 'Would you like to review them now?',
+                        'type': 2
                     }
                 ]
             }
@@ -207,22 +216,21 @@ function createPendingApprovalsResponse(approval_items_data) {
 }
 
 function createNextApprovalResponse(item_data) {
-    return new Promise((resolve, reject) => {
-        try {
-            // console.log(item_data.result)
-            var name = item_data.result[0].opened_by.display_value
-            var type = item_data.result[0].sys_class_name
-            var short_description = item_data.result[0].short_description
-            var priority = item_data.result[0].priority
-            var number = item_data.result[0].number
-            var sys_id = item_data.result[0].sys_id
-            var url = baseurl + reqQueryUri + sys_id
+	return new Promise((resolve, reject) => {
+		try {
+			// console.log(item_data.result)
+			var name = item_data.result[0].opened_by.display_value
+			var type = item_data.result[0].sys_class_name
+			var short_description = item_data.result[0].short_description
+			var priority = item_data.result[0].priority
+			var number = item_data.result[0].number
+			var sys_id = item_data.result[0].sys_id
+			var url = baseurl + reqQueryUri + sys_id
 
-            var response = name + ' seeks approval for ' + type + ':\n'
-                            + short_description + '\n'
-                            + 'Priority: ' + priority + '\n'
-                            + '<a href="' + url + '">' + number + '</a>'
-
+			var response = name + ' seeks approval for ' + type + ':\n'
+							+ short_description + '\n'
+							+ 'Priority: ' + priority + ' \n'
+							+ '<a href="' + url + '">' + number + '</a>'
             var result = {
                 'speech': 'Processing approvals response',
                 'displayText': 'Processing approvals response',
