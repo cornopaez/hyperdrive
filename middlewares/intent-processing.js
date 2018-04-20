@@ -20,6 +20,9 @@ const {
     createPendingApprovalsResponse,
     createNextApprovalResponse } = require('./response-creation.js')
 
+const {
+    modifyCurrentContext } = require('./dialogflow-api.js')
+
 const incidentUri = '/incident.do?sys_id=' //this is different from the incident uri in the sn-api library this one is for generating the links to actual incidents
 
 const Redis = require('ioredis')
@@ -205,7 +208,7 @@ function processIntent(request_body) {
         case 'process_request_approve':
             redis.get(request_body.sessionId)
             .then(success => {
-                console.log(Date() + ': ProcessIntent (process_request_approve) - Starting the approval process.')
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Starting the rejection process.')
                 current_context = JSON.parse(success)
                 request_sys_id = current_context.current_approval_table_sys_id
                 skype_uid = request_body.originalRequest.data.address.user.id
@@ -214,7 +217,7 @@ function processIntent(request_body) {
                 return processReviewForRequest(request_body, request_sys_id, skype_uid, new_state)
             })
             .then(success => {
-                console.log(Date() + ':ProcessIntent (process_request_approve) -  Approval process complete.')
+                console.log(Date() + ':ProcessIntent (process_request_approve) -  Rejection process complete.')
                 return redis.get(request_body.sessionId)
             })
             .then(success => {
@@ -241,6 +244,40 @@ function processIntent(request_body) {
             break
 
         case 'process_request_reject':
+
+            redis.get(request_body.sessionId)
+            .then(success => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Starting the skip process.')
+                return modifyCurrentContext(success, request_body)
+            })
+            .then(success => {
+                console.log(Date() + ':ProcessIntent (process_request_approve) -  Skip process complete.')
+                return redis.get(request_body.sessionId)
+            })
+            .then(success => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Getting case details.')
+                current_context = JSON.parse(success)
+                // console.log(typeof current_context)
+                request_number = current_context.current_approval_number
+                // console.log(request_number)
+                return getRequestDetails(request_number)
+            })
+            .then(success => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Creating response.')
+                return createNextApprovalResponse(success)
+            })
+            .then(message => {
+                console.log(Date() + ' : ProcessIntent (process_request_approve) - Success building response for api.ai.')
+                resolve(message)
+            })
+            .catch(error => {
+                console.log(Date() + ': ProcessIntent (process_request_approve) - Something\'s gone wrong. \n' + JSON.stringify(error))
+                reject(error)
+            })
+
+            break
+
+        case 'process_request_skip':
 
             redis.get(request_body.sessionId)
             .then(success => {
@@ -277,9 +314,6 @@ function processIntent(request_body) {
                 reject(error)
             })
 
-            break
-
-        case 'process_request_skip':
             break
 
         case 'check_catalog':
