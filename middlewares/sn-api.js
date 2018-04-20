@@ -317,13 +317,13 @@ function getRequestedApprovalsForUser(skype_uid, original_request) {
                             console.log(Date() + ': '+ 'getRequestedApprovalsForUser request success!')
 
                             createNewContext(body, original_request)
-                            .then(success => {
-                                console.log(success)
-                                resolve(JSON.parse(body))
-                            })
-                            .catch(error => {
-                                reject(error)
-                            })
+                                .then(success => {
+                                    console.log(success)
+                                    resolve(JSON.parse(body))
+                                })
+                                .catch(error => {
+                                    reject(error)
+                                })
                         } else {
                             console.log(Date() + ': '+ 'getRequestedApprovalsForUser request error!')
                             // console.log(response)
@@ -385,18 +385,18 @@ function processReviewForRequest(original_request, request_sys_id, skype_uid, ne
                             console.log(Date() + ': '+ 'processReviewForRequest request success!')
 
                             redis.get(original_request.sessionId)
-                            .then(success => {
-                                // console.log(success)
-                                return modifyCurrentContext(success, original_request)
-                            })
-                            .then(success => {
-                                console.log('modifyCurrentContext success')
-                                resolve(body)
-                            })
-                            .catch(error => {
-                                console.log('modifyCurrentContext error')
-                                reject(error)
-                            })
+                                .then(success => {
+                                    // console.log(success)
+                                    return modifyCurrentContext(success, original_request)
+                                })
+                                .then(success => {
+                                    console.log('modifyCurrentContext success' + success)
+                                    resolve(body)
+                                })
+                                .catch(error => {
+                                    console.log('modifyCurrentContext error')
+                                    reject(error)
+                                })
 
                         } else {
                             console.log(Date() + ': '+ 'processReviewForRequest request error!')
