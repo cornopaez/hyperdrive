@@ -34,8 +34,8 @@ module.exports = {
     processReviewForRequest: processReviewForRequest,
     queryProductCatalog: queryProductCatalog,
     createRequest: createRequest,
-    kburi: kburi,
-    baseurl: baseurl,
+    // kburi: kburi,
+    // baseurl: baseurl,
     getRequestDetails: getRequestDetails
 }
 

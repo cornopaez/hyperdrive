@@ -2,13 +2,13 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const routes = require('./controllers/routes.js')
-const DIST_FOLDER = process.cwd() + '/dist'
+const PUBLIC_FOLDER = process.cwd() + '/public'
 
 app.use(bodyParser.json()) // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
 
 // Static files
-app.use(express.static(DIST_FOLDER))
+app.use(express.static(PUBLIC_FOLDER))
 
 // Main router -- ****OTHER ROUTERS NEED TO BE ABOVE THIS LINE!!!!******
 app.use('/', routes)
