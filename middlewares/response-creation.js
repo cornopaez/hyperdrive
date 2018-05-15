@@ -130,9 +130,9 @@ function createRequestConfirmationResponse(check_catalog_data) {
                                         'text': 'No'
                                     }
                                 ],
-                                'imageUrl': 'https://cornopaez-hyperdrive.herokuapp.com/pnc_logo.png',
+                                'imageUrl': searchResult.image,
                                 'platform': 'skype',
-                                'subtitle': '(nod) Sure! I will open a request for you for ' + searchResult.sys_name + '. Is this correct?',
+                                'subtitle': '(nod) Sure! I will open a request for you this item. Is this correct?',
                                 'title': searchResult.sys_name,
                                 'type': 1
                             }
