@@ -102,22 +102,6 @@ function createRequestConfirmationResponse(check_catalog_data) {
                     result = {
                         'speech': 'Catalog Confirmation',
                         'displayText': 'Catalog Confirmation',
-                        // 'messages': [
-                        //     {
-                        //         'platform': 'skype',
-                        //         'speech': '(nod) Sure! I will open a request for you for ' + searchResult.sys_name + '.',
-                        //         'type': 0
-                        //     },
-                        //     {
-                        //         'platform': 'skype',
-                        //         'replies': [
-                        //             'Yes',
-                        //             'No'
-                        //         ],
-                        //         'title': 'Is this correct?',
-                        //         'type': 2
-                        //     }
-                        // ]
                         'messages': [
                             {
                                 'buttons': [
