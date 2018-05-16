@@ -480,16 +480,18 @@ function createRequest(item_name, item_count, skype_uid, approval_requested = 'R
                 var item_data = success[0].result[0]
                 var user_data = success[1].result[0]
                 var description = ''
+                var short_description = ''
 
                 try {
                     // Creationing the description based on the number of item_count
                     if (item_count <= 1) {
                         description = 'This request has been processed by PNC Assistant. ' + user_data.name + ' (' + user_data.email + ') is requesting ' + item_data.name
+                        short_description = user_data.name + ' (' + user_data.email + ') is requesting ' + item_data.name
                     } else {
                         description = 'This request has been processed by PNC Assistant. ' + user_data.name + ' (' + user_data.email + ') is requesting ' + item_count + ' ' + item_data.name
+                        short_description = user_data.name + ' (' + user_data.email + ') is requesting ' + item_count + ' ' + item_data.name
                     }
 
-                    var short_description = user_data.name + ' (' + user_data.email + ') is requesting ' + item_data.name
                     var options = {
                         method: 'POST',
                         url: baseurl + requestUri,
