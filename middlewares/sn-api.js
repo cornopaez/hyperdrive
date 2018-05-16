@@ -467,24 +467,32 @@ function queryProductCatalog(item_name) {
 	that resolves the data returned by SN as a JSON object or provide the error occured.
 
 	@param item_name - The name of the item being sought
+    @param item_count - The amount of item_name being requested by user
 	@param skype_uid - The skype UID for the beneficiary of this request
 	@param approval_requested - Optional. This defines whether the request triggers the approval workflow in SN
 	@return - Promise. Resolves to JSON object response from SN.
 */
-function createRequest(item_name, skype_uid, approval_requested = 'Requested') {
+function createRequest(item_name, item_count, skype_uid, approval_requested = 'Requested') {
     return new Promise((resolve, reject) => {
 
         Promise.all([queryProductCatalog(item_name), getUserDetails(skype_uid)])
             .then(success => {
                 var item_data = success[0].result[0]
                 var user_data = success[1].result[0]
+                var description = ''
 
                 try {
+                    // Creationing the description based on the number of item_count
+                    if (item_count <= 1) {
+                        description = 'This request has been processed by PNC Assistant. ' + user_data.name + ' (' + user_data.email + ') is requesting ' + item_data.name
+                    } else {
+                        description = 'This request has been processed by PNC Assistant. ' + user_data.name + ' (' + user_data.email + ') is requesting ' + item_count + ' ' + item_data.name
+                    }
+
                     var short_description = user_data.name + ' (' + user_data.email + ') is requesting ' + item_data.name
-                    var description = 'This request has been processed by PNC Assistant. ' + user_data.name + ' (' + user_data.email + ') is requesting ' + item_data.name
                     var options = {
                         method: 'POST',
-                        url: 'https://pncmelliniumfalcon.service-now.com/api/now/table/sc_request',
+                        url: baseurl + requestUri,
                         headers: {
                             'Cache-Control': 'no-cache',
                             Authorization: auth,
@@ -493,7 +501,7 @@ function createRequest(item_name, skype_uid, approval_requested = 'Requested') {
                             approval: approval_requested,
                             upon_approval: 'proceed',
                             requested_for: user_data.sys_id,
-                            price: item_data.price,
+                            price: item_data.price * item_count,
                             short_description: short_description, // Needs discussion
                             description: description
                         },

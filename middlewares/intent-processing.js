@@ -42,6 +42,7 @@ function processIntent(request_body) {
     var request_sys_id = '' // This needs to be populated and passed to function with info from api.ai
     var item_name = ''
     var request_number = ''
+    var item_count = ''
 
     return new Promise((resolve, reject) => {
 
@@ -318,12 +319,13 @@ function processIntent(request_body) {
             // item_name // This needs to be populated and passed to function with info from api.ai
             // console.log(request_body)
             item_name = request_body.result.parameters.MALSoftware ? request_body.result.parameters.MALSoftware : request_body.result.parameters.Hardware
+            item_count = request_body.result.parameters.number ? request_body.result.parameters.number : '1'
 
             queryProductCatalog(item_name)
                 .then(success => {
                     console.log(Date() + ' : ProcessIntent (check_catalog) - Success fetching data from Product Catalog.')
                     // console.log(success)
-                    return createRequestConfirmationResponse(success)
+                    return createRequestConfirmationResponse(success, item_count)
                 })
                 .then(response => {
                     console.log(Date() + ' : ProcessIntent (check_catalog) - Success building response for api.ai.')
@@ -340,10 +342,11 @@ function processIntent(request_body) {
             // item_name // This needs to be populated and passed to function with info from api.ai
             skype_uid = request_body.originalRequest.data.address.user.id
             item_name = request_body.result.parameters.MALSoftware ? request_body.result.parameters.MALSoftware : request_body.result.parameters.Hardware
+            item_count = request_body.result.parameters.number ? request_body.result.parameters.number : '1'
 
             // console.log(JSON.stringify(request_body))
 
-            createRequest(item_name, skype_uid)
+            createRequest(item_name, item_count, skype_uid)
                 .then(success => {
                     console.log(Date() + ' : ProcessIntent (create_request) - Success creating a request.')
                     return createRequestCreationResponse(success)
