@@ -488,8 +488,8 @@ function createRequest(item_name, item_count, skype_uid, approval_requested = 'R
                         description = 'This request has been processed by PNC Assistant. ' + user_data.name + ' (' + user_data.email + ') is requesting ' + item_data.name
                         short_description = user_data.name + ' (' + user_data.email + ') is requesting ' + item_data.name
                     } else {
-                        description = 'This request has been processed by PNC Assistant. ' + user_data.name + ' (' + user_data.email + ') is requesting ' + item_count + ' ' + item_data.name
-                        short_description = user_data.name + ' (' + user_data.email + ') is requesting ' + item_count + ' ' + item_data.name
+                        description = 'This request has been processed by PNC Assistant. ' + user_data.name + ' (' + user_data.email + ') is requesting ' + item_count + ' ' + item_data.name + 's'
+                        short_description = user_data.name + ' (' + user_data.email + ') is requesting ' + item_count + ' ' + item_data.name + 's'
                     }
 
                     var options = {
